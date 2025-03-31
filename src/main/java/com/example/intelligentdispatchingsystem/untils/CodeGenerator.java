@@ -20,10 +20,11 @@ public class CodeGenerator {
                             .pathInfo(null); // 不生成 XML
                 })
                 .strategyConfig(builder -> {
-                    builder.addInclude("user") // 设置要生成的表
-                            .addInclude("employee")
-                            .addInclude("inventory")
-                            .addTablePrefix("t_"); // 忽略表前缀（如 t_user → User）
+                    builder.addInclude("skills") // 设置要生成的表
+
+                            .addTablePrefix("t_")// 忽略表前缀（如 t_user → User）
+                            .controllerBuilder().disable();
+                            //.entityBuilder().disable(); // 不生成实体类
                     builder.controllerBuilder().enableHyphenStyle();// 开启驼峰转连字符
                     builder.entityBuilder().enableLombok();
                 })

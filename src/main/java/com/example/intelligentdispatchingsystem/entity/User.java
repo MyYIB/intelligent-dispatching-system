@@ -40,4 +40,6 @@ public class User implements Serializable {
     private String role;
 
     private LocalDateTime createdAt;
+
+    private String account;
 }

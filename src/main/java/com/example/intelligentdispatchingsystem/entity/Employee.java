@@ -28,7 +28,11 @@ public class Employee implements Serializable {
 
     private Integer userId;
 
-    private String skillSet;
+    private String name;
+
+    private String phone;
+
+    private String email;
 
     private String location;
 
@@ -38,7 +42,9 @@ public class Employee implements Serializable {
 
     private Integer workload;
 
-    private String skillLevel;
+    private Integer skillLevel;
+
+    private Double levelPoint;
 
     private Integer currentWorkload;
 

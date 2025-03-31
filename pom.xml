@@ -60,14 +60,14 @@
         <!-- MyBatis-Plus 核心 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.3.2</version>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.7</version>
         </dependency>
         <!-- MyBatis-Plus 代码生成器 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.5.3</version>
+            <version>3.5.7</version>
         </dependency>
         <!-- Velocity 模板引擎（MP 依赖） -->
         <dependency>

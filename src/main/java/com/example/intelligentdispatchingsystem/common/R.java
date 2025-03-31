@@ -16,21 +16,21 @@ public class R<T> {
         R<T> r = new R<T>();
         r.array = object;
         r.array2=object2;
-        r.code = 1;
+        r.code = 200;
         return r;
     }
 
     public static <T> R<T> ArraySuccess(ArrayList<T> object) {  //  传入一个对象数组
         R<T> r = new R<T>();
         r.array = object;
-        r.code = 1;
+        r.code = 200;
         return r;
     }
 
     public static <T> R<T> OneSuccess(T object) {  //  传入一个对象
         R<T> r = new R<T>();
         r.data = object;
-        r.code = 1;
+        r.code = 200;
         return r;
     }
 
