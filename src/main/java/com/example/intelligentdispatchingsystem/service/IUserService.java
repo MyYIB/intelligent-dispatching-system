@@ -1,6 +1,6 @@
 package com.example.intelligentdispatchingsystem.service;
 
-import com.example.intelligentdispatchingsystem.entity.User;
+import com.example.intelligentdispatchingsystem.entity.role.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

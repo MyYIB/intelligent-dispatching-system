@@ -2,7 +2,7 @@ package com.example.intelligentdispatchingsystem.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.intelligentdispatchingsystem.common.R;
-import com.example.intelligentdispatchingsystem.entity.User;
+import com.example.intelligentdispatchingsystem.entity.role.User;
 import com.example.intelligentdispatchingsystem.mapper.UserMapper;
 import com.example.intelligentdispatchingsystem.service.IUserService;
 import com.example.intelligentdispatchingsystem.vo.LoginVO;

@@ -1,4 +1,4 @@
-package com.example.intelligentdispatchingsystem.entity;
+package com.example.intelligentdispatchingsystem.entity.info;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -1,8 +1,10 @@
-package com.example.intelligentdispatchingsystem.entity;
+package com.example.intelligentdispatchingsystem.entity.role;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
@@ -51,4 +53,6 @@ public class Employee implements Serializable {
     private Integer maxWorkload;
 
     private String status;
+    @TableField(exist = false)
+    private List<String> skills;
 }

@@ -1,9 +1,9 @@
 <script setup>
-import {ref, onMounted, reactive, nextTick} from "vue";
+import {nextTick, onMounted, reactive, ref} from "vue";
 import request from "@/utils/request";
-import { ElNotification, ElMessage } from "element-plus";
-import { CirclePlus, Edit, Remove,Phone,Search,Location,Upload,Download,List } from "@element-plus/icons-vue";
-import { debounce } from 'lodash-es';
+import {ElMessage, ElNotification} from "element-plus";
+import {CirclePlus, Download, Edit, List, Location, Phone, Remove, Search, Upload} from "@element-plus/icons-vue";
+import {debounce} from 'lodash-es';
 // 响应式数据
 const employeeName = ref(""); // 搜索的姓名
 const employeePhone = ref(""); // 搜索的电话
@@ -31,10 +31,12 @@ const rules = {
   email: [{ required: true, message: "请输入员工邮箱", trigger: "blur" }],
   address: [{ required: true, message: "请输入员工地址", trigger: "blur" }],
 };
-// 用户技能数据（初始为空）
+// 所有技能数据（初始为空）
 const skillsList = ref([]);
 //等级选项
 const levelOptions = ref([1,2,3,4,5,6,7,8,9,10]);
+// 保存员工技能
+const employeeSkills = ref({});
 const baseURL =  "http://localhost:8081";
 // 加载数据
 const load = debounce(() => {
@@ -168,19 +170,34 @@ const showLocation = (row) => {
   console.log(row);
 }
 //展示员工技能
-const showSkills =(row) => {
-  console.log(row);
+const loadEmployeeSkills =(id) => {
+  if(!employeeSkills.value[id]){
+    request.get(`employee/getEmployeeSkills?employeeId=${id}`,{})
+    .then((res) => {
+      if (res.data.code === 200) {
+        const skills = res.data.array.map(skill => skill.skillName);
+        employeeSkills.value[id] = skills;
+      }else{
+        ElMessage.error(res.data.msg)
+      }
+  })
+  }else {
+    return null
+  }
 }
 //计算工作负载比例
 const showWorkloadPercent = (row) => {
-  console.log(row);
-
-  return 100
+  return (row.currentWorkload / row.maxWorkload)*100
 }
 //工作负载状态
 const showWorkloadStatus = (row) => {
-  console.log(row);
-  return "exception"
+  let percent = showWorkloadPercent(row)
+  if (percent <= 30)
+    return "success"
+  if (percent > 30 && percent <= 60)
+    return "warning"
+  if (percent > 60)
+    return "exception"
 }
 // // 获取技能列表（后端接口）
 const loadSkills = debounce( () => {
@@ -250,14 +267,17 @@ onMounted(load,loadSkills());
     <el-table :data="tableData" border stripe :header-cell-class-name="headerBg" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
       <el-table-column prop="employeeId" label="ID" width="80" />
-      <el-table-column prop="username" label="员工姓名" width="140" />
+      <el-table-column prop="name" label="员工姓名" width="140" />
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="phone" label="电话" />
       <el-table-column prop="address" label="家庭地址" />
       <el-table-column prop="skillLevel" label="等级" />
       <el-table-column label="技能集" >
         <template #default="{ row }">
-          <el-icon @click="showSkills(row)"><List /></el-icon>
+          <el-tooltip :content="employeeSkills[row.employeeId]?.join('，') || '暂无技能'" placement="top" effect="light">
+          <el-icon @mouseenter="loadEmployeeSkills(row.employeeId)"
+                   style="cursor: pointer"><List /></el-icon>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="当前地址" >
@@ -273,7 +293,7 @@ onMounted(load,loadSkills());
               :percentage=showWorkloadPercent(row)
               :status=showWorkloadStatus(row)
           >
-            <span>{{row.currentWorkload}}/{{row.maxWorkload}}</span>
+            <span style="color: #333333">{{row.currentWorkload}}/{{row.maxWorkload}}</span>
           </el-progress>
         </template>
       </el-table-column>

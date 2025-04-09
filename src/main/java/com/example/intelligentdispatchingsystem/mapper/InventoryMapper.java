@@ -1,6 +1,6 @@
 package com.example.intelligentdispatchingsystem.mapper;
 
-import com.example.intelligentdispatchingsystem.entity.Inventory;
+import com.example.intelligentdispatchingsystem.entity.info.Inventory;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

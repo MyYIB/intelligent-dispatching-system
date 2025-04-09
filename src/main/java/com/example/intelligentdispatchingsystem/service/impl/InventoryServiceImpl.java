@@ -1,6 +1,6 @@
 package com.example.intelligentdispatchingsystem.service.impl;
 
-import com.example.intelligentdispatchingsystem.entity.Inventory;
+import com.example.intelligentdispatchingsystem.entity.info.Inventory;
 import com.example.intelligentdispatchingsystem.mapper.InventoryMapper;
 import com.example.intelligentdispatchingsystem.service.IInventoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

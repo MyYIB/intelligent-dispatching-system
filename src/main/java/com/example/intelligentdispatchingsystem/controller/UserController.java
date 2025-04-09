@@ -8,13 +8,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.intelligentdispatchingsystem.common.R;
-import com.example.intelligentdispatchingsystem.entity.User;
+import com.example.intelligentdispatchingsystem.entity.role.User;
 import com.example.intelligentdispatchingsystem.service.IUserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;

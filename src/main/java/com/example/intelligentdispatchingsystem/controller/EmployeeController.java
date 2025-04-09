@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.intelligentdispatchingsystem.common.R;
-import com.example.intelligentdispatchingsystem.entity.Employee;
-import com.example.intelligentdispatchingsystem.entity.Skills;
+import com.example.intelligentdispatchingsystem.entity.role.Employee;
+import com.example.intelligentdispatchingsystem.entity.info.Skills;
 import com.example.intelligentdispatchingsystem.service.IEmployeeService;
 import com.example.intelligentdispatchingsystem.service.ISkillsService;
 import jakarta.annotation.Resource;
@@ -69,5 +69,13 @@ public class EmployeeController {
         }
     }
 
+    @GetMapping("/getEmployeeSkills")
+    public R<Object> getEmployeeSkills(@RequestParam int employeeId) {
+        List<Skills> skills = employeeService.getSkillsByEmployeeId(employeeId);
+        if (skills == null || skills.isEmpty()) {
+            return R.error("未查询到该员工的技能信息");
+        }
+        return R.ArraySuccess(new ArrayList<>(skills));
+    }
 
 }
