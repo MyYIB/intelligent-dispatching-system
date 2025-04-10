@@ -37,7 +37,11 @@ const skillsList = ref([]);
 const levelOptions = ref([1,2,3,4,5,6,7,8,9,10]);
 // 保存员工技能
 const employeeSkills = ref({});
+// 后端接口地址
 const baseURL =  "http://localhost:8081";
+// 地图对话框控制变量和当前选中的位置
+const mapDialogVisible = ref(false);
+const currentLocation = ref(null);
 // 加载数据
 const load = debounce(() => {
   request
@@ -50,7 +54,6 @@ const load = debounce(() => {
         },
       })
       .then((res) => {
-        console.log(res);
         tableData.value = res.data.data;
         total.value = res.data.total;
       });
@@ -61,10 +64,8 @@ const newUser = async () => {
   try {
     await UserFormRef.value.validate(); // 直接 await validate()，它会返回一个 Promise
     const url = ifAdd.value ? "employee/addNewUser" : "employee/updateUser";
-
     const res = await request.post(url, UserForm);
-    console.log(res);
-    if (res.data.code === 200) {
+    if (res.data.status === 200) {
       ElNotification({ title: "成功", message: res.data.msg, type: "success" });
       userDialogForm.value = false;
       load();
@@ -131,7 +132,7 @@ const handleEdit = (row) => {
 // 删除用户
 const del = (id) => {
   request.delete(`employee/delete?id=${id}`).then((res) => {
-    if (res.data.code === 200) {
+    if (res.data.status === 200) {
       ElNotification({ title: "删除成功", message: "删除员工成功", type: "success" });
       load();
     } else {
@@ -148,7 +149,7 @@ const delBatch = () => {
   }
   let ids = multipleSelection.value.map((v) => v.id);
   request.delete("employee/delBatch", {ids}).then((res) => {
-    if (res.data.code === 200) {
+    if (res.data.status === 200) {
       ElMessage.success("批量删除成功");
       load();
     } else {
@@ -165,17 +166,13 @@ const handleExcelImportSuccess = () =>{
 const exportExcel = () =>{
   window.open(`${baseURL}/employee/export`);
 }
-//展示员工位置
-const showLocation = (row) => {
-  console.log(row);
-}
 //展示员工技能
 const loadEmployeeSkills =(id) => {
   if(!employeeSkills.value[id]){
     request.get(`employee/getEmployeeSkills?employeeId=${id}`,{})
     .then((res) => {
-      if (res.data.code === 200) {
-        const skills = res.data.array.map(skill => skill.skillName);
+      if (res.data.status === 200) {
+        const skills = res.data.data.map(skill => skill.skillName);
         employeeSkills.value[id] = skills;
       }else{
         ElMessage.error(res.data.msg)
@@ -185,6 +182,91 @@ const loadEmployeeSkills =(id) => {
     return null
   }
 }
+//展示员工等级经验
+const showLevel = (row) =>{
+  return row.levelPoint%100
+}
+
+// 展示位置
+// 添加地图相关变量
+const map = ref(null);
+const marker = ref(null);
+// 对话框关闭处理函数
+const handleDialogClose = () => {
+  if (map.value) {
+    map.value.destroy();
+    map.value = null;
+  }
+  marker.value = null;
+};
+// 展示位置方法
+const showLocation = async (row) => {
+  if (row.locationLatitude && row.locationLongitude) {
+    
+    console.log('位置数据:', row.locationLatitude, row.locationLongitude);
+    currentLocation.value = {
+      latitude: row.locationLatitude,
+      longitude: row.locationLongitude,
+      name: row.name
+    };
+    mapDialogVisible.value = true;
+    
+    // 等待对话框渲染完成
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100)); // 添加短暂延迟
+    
+    try {
+      // 每次都重新创建地图实例
+      if (map.value) {
+        map.value.destroy();
+        map.value = null;
+      }
+      
+      const container = document.getElementById('container');
+      if (!container) {
+        throw new Error('地图容器不存在');
+      }
+      
+      // 确保经纬度是数值类型
+      const lng = parseFloat(currentLocation.value.longitude);
+      const lat = parseFloat(currentLocation.value.latitude);
+      
+      if (isNaN(lng) || isNaN(lat)) {
+        throw new Error('经纬度格式不正确');
+      }
+      
+      console.log('创建地图:', lng, lat);
+      
+      map.value = new window.AMap.Map(container, {
+        zoom: 13,
+        center: [lng, lat],
+        resizeEnable: true
+      });
+      
+      marker.value = new window.AMap.Marker({
+        position: [lng, lat],
+        title: currentLocation.value.name,
+      });
+      map.value.add(marker.value);
+      
+      // 添加信息窗体
+      const infoWindow = new window.AMap.InfoWindow({
+        content: `<div style="padding: 8px;">${currentLocation.value.name}</div>`,
+        offset: new window.AMap.Pixel(0, -30)
+      });
+      
+      // 默认打开信息窗体
+      infoWindow.open(map.value, [lng, lat]);
+      
+    } catch (error) {
+      console.error('地图初始化失败:', error);
+      ElMessage.error(`地图加载失败: ${error.message}`);
+    }
+  } else {
+    ElMessage.warning('暂无位置信息');
+  }
+};
+
 //计算工作负载比例
 const showWorkloadPercent = (row) => {
   return (row.currentWorkload / row.maxWorkload)*100
@@ -204,14 +286,14 @@ const loadSkills = debounce( () => {
   request
       .get("employee/getSkillList", {},)
       .then((res) => {
-        if (res.data.code === 200) {
+        if (res.data.status === 200) {
           // 将后端获取的技能数据填充到 skillsList
-          skillsList.value = res.data.array.map(skill => ({
+          skillsList.value = res.data.data.map(skill => ({
             key: skill.skillId,
             label: skill.skillName,  // 假设后端返回字段为 'name'
           }));
         } else {
-          ElMessage.error("技能列表加载失败");
+          ElMessage.error(res.data.msg);
         }
       });
 },300);
@@ -271,7 +353,17 @@ onMounted(load,loadSkills());
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="phone" label="电话" />
       <el-table-column prop="address" label="家庭地址" />
-      <el-table-column prop="skillLevel" label="等级" />
+      <el-table-column prop="skillLevel" label="等级" >
+        <template #default="{ row }">
+          <el-progress
+              :stroke-width="20"
+              :text-inside="true"
+              :percentage=showLevel(row)
+          >
+            <span style="color: #333333">{{row.levelPoint}}/100</span>
+          </el-progress>
+        </template>
+      </el-table-column>
       <el-table-column label="技能集" >
         <template #default="{ row }">
           <el-tooltip :content="employeeSkills[row.employeeId]?.join('，') || '暂无技能'" placement="top" effect="light">
@@ -282,7 +374,9 @@ onMounted(load,loadSkills());
       </el-table-column>
       <el-table-column label="当前地址" >
         <template #default="{ row }">
-          <el-icon @click="showLocation(row)"><Location /></el-icon>
+          <el-tooltip :content="row.location" placement="top" effect="light">
+            <el-icon @click="showLocation(row)" style="cursor: pointer"><Location /></el-icon>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column  label="工作负载" >
@@ -367,9 +461,24 @@ onMounted(load,loadSkills());
         <el-button type="primary" @click="newUser()">确 定</el-button>
       </template>
     </el-dialog>
+    
+    <!-- 地图对话框 -->
+    <el-dialog
+      v-model="mapDialogVisible"
+      title="员工位置"
+      width="50%"
+      destroy-on-close
+      @closed="handleDialogClose"
+      :append-to-body="true"
+    >
+    <div id="container" style="height: 400px; width: 100%; position: relative;"></div>
+    </el-dialog>
   </div>
 </template>
 
 <style scoped>
-
+.amap-container {
+  width: 100%;
+  height: 100%;
+}
 </style>

@@ -24,7 +24,7 @@ const rules = {
 const login = () => {
   request.post('login/login', loginForm.value)
       .then(res => {
-        if (res.data.code === 200) {
+        if (res.data.status === 200) {
           const { token, user } = res.data.data;
           //存储token
           store.setToken(token);

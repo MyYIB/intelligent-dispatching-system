@@ -24,4 +24,10 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
             "JOIN employee_skills es ON s.skill_id = es.skill_id " +
             "WHERE es.employee_id = #{employeeId}")
     List<Skills> getSkillsByEmployeeId(@Param("employeeId") Integer employeeId);
+
+    @Select("SELECT u.address " +
+            "FROM employee e " +
+            "JOIN user u ON e.user_id = u.user_id " +
+            "WHERE e.employee_id = #{employeeId}")
+    String getEmployeeAddress(@Param("employeeId") Integer employeeId);
 }

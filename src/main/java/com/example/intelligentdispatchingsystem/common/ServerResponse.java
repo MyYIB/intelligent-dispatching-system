@@ -1,4 +1,5 @@
-package com.xr.comm;
+package com.example.intelligentdispatchingsystem.common;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,10 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 
-/**
- * @author 朱雨
- * @date 2022/2/8
- */
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "通用返回实体")
 public class ServerResponse<T> implements Serializable {

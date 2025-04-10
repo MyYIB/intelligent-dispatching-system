@@ -26,4 +26,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     public List<Skills> getSkillsByEmployeeId(Integer employeeId) {
         return employeeMapper.getSkillsByEmployeeId(employeeId);
     }
+
+    public String getEmployeeAddress(Integer employeeId) {
+        return employeeMapper.getEmployeeAddress(employeeId);
+    }
 }

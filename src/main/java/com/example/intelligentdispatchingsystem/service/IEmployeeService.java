@@ -16,4 +16,5 @@ import java.util.List;
  */
 public interface IEmployeeService extends IService<Employee> {
     List<Skills> getSkillsByEmployeeId(Integer employeeId);
+    String getEmployeeAddress(Integer employeeId);
 }

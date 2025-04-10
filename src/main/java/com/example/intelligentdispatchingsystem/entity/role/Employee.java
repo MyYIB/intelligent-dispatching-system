@@ -55,4 +55,6 @@ public class Employee implements Serializable {
     private String status;
     @TableField(exist = false)
     private List<String> skills;
+    @TableField(exist = false)
+    private String address;
 }

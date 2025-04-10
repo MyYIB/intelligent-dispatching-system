@@ -7,7 +7,7 @@ import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.intelligentdispatchingsystem.common.R;
+import com.example.intelligentdispatchingsystem.common.ServerResponse;
 import com.example.intelligentdispatchingsystem.entity.role.User;
 import com.example.intelligentdispatchingsystem.service.IUserService;
 import jakarta.annotation.Resource;
@@ -62,45 +62,45 @@ public class UserController {
 
     // 添加用户
     @PostMapping("/addNewUser")
-    public R<Object> addUser(@RequestBody User user) {
+    public ServerResponse<Object> addUser(@RequestBody User user) {
         //设置用户手机号码就是登录账号
         user.setAccount(user.getPhone());
         user.setRole("customer");
         user.setPassword("123456");
         if (userService.save(user)) {
-            return R.success("新增成功");
+            return ServerResponse.createBySuccessMsg("新增成功");
         }else {
-            return R.error("新增失败");
+            return ServerResponse.createError("新增失败");
         }
     }
 
     //更新用户
     @PostMapping("/updateUser")
-    public R<Object> updateTeacher(@RequestBody User user){
+    public ServerResponse<Object> updateTeacher(@RequestBody User user){
         //设置用户手机号码就是登录账号
         user.setAccount(user.getPhone());
         if (userService.saveOrUpdate(user)){
-            return R.success("修改成功");
+            return ServerResponse.createBySuccessMsg("修改成功");
         }else {
-            return R.error("修改失败");
+            return ServerResponse.createError("修改失败");
         }
     }
     @DeleteMapping("/delete")
-    public R<Object> deleteOne(@RequestParam int id){
+    public ServerResponse<Object> deleteOne(@RequestParam int id){
         if (userService.removeById(id)){
-            return R.success("删除成功");
+            return ServerResponse.createBySuccessMsg("删除成功");
 
         }else {
-            return R.error("删除失败");
+            return ServerResponse.createError("删除失败");
         }
     }
 
     @DeleteMapping("/delBatch")
-    public R<Object> delBatch(@RequestBody List<Integer> ids){
+    public ServerResponse<Object> delBatch(@RequestBody List<Integer> ids){
         if (userService.removeByIds(ids)) {
-            return R.success("批量删除成功");
+            return ServerResponse.createBySuccessMsg("批量删除成功");
         }else {
-            return R.error("批量删除失败");
+            return ServerResponse.createError("批量删除失败");
         }
     }
 
@@ -108,7 +108,7 @@ public class UserController {
      * 导出接口
      */
     @GetMapping("/export")
-    public R<Object> export(HttpServletResponse response) throws Exception {
+    public ServerResponse<Object> export(HttpServletResponse response) throws Exception {
         // 从数据库查询出所有的数据
         List<User> list = userService.list();
         // 通过工具类创建writer 写出到磁盘路径
@@ -137,7 +137,7 @@ public class UserController {
         out.close();
         writer.close();
 
-        return R.success("成功");
+        return ServerResponse.createBySuccessMsg("成功");
     }
 
     /**
@@ -146,7 +146,7 @@ public class UserController {
      * @throws Exception
      */
     @PostMapping("/import")
-    public R<Object> imp(MultipartFile file) throws Exception {
+    public ServerResponse<Object> imp(MultipartFile file) throws Exception {
         InputStream inputStream = file.getInputStream();
         ExcelReader reader = ExcelUtil.getReader(inputStream);
         // 方式1：(推荐) 通过 javabean的方式读取Excel内的对象，但是要求表头必须是英文，跟javabean的属性要对应起来
@@ -165,10 +165,10 @@ public class UserController {
             users.add(user);
         }
         if(userService.saveBatch(users)){
-            return R.success("导入成功");
+            return ServerResponse.createBySuccessMsg("导入成功");
 
         }else {
-            return R.error("导入失败");
+            return ServerResponse.createError("导入失败");
         }
     }
 

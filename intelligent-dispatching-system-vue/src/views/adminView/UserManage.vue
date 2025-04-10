@@ -59,8 +59,7 @@ const newUser = async () => {
     const url = ifAdd.value ? "user/addNewUser" : "user/updateUser";
 
     const res = await request.post(url, UserForm);
-    console.log(res);
-    if (res.data.code === 200) {
+    if (res.data.status === 200) {
       ElNotification({ title: "成功", message: res.data.msg, type: "success" });
       userDialogForm.value = false;
       load();
@@ -125,7 +124,7 @@ const handleEdit = (row) => {
 // 删除用户
 const del = (id) => {
   request.delete(`user/delete?id=${id}`).then((res) => {
-    if (res.data.code === 200) {
+    if (res.data.status === 200) {
       ElNotification({ title: "删除成功", message: "删除用户成功", type: "success" });
       load();
     } else {
@@ -142,7 +141,7 @@ const delBatch = () => {
   }
   let ids = multipleSelection.value.map((v) => v.id);
   request.delete("user/delBatch", {ids}).then((res) => {
-    if (res.data.code === 200) {
+    if (res.data.status === 200) {
       ElMessage.success("批量删除成功");
       load();
     } else {

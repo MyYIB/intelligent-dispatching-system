@@ -1,11 +1,5 @@
-package com.xr.comm;
+package com.example.intelligentdispatchingsystem.common;
 
-
-
-/**
- * @author 朱雨
- * @date 2022/2/8
- */
 public enum ResponseCode {
     SUCCESS(200,"操作成功"),
     ERROR(204,"操作失败");

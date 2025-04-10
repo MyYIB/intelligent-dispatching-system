@@ -6,34 +6,44 @@ import './assets/global.css';
 import request from '@/utils/request';
 import { createPinia } from 'pinia';
 import router from './router';
-const app = createApp(App);
-const pinia = createPinia();
-app.use(ElementPlus, { size: 'small' });
-app.use(pinia)
-app.use(router);
-// 全局挂载 request 方法
-app.config.globalProperties.$request = request;
+import AMapLoader from '@amap/amap-jsapi-loader';
+import {useUserStore} from "@/store"; 
+// 高德地图安全配置
+window._AMapSecurityConfig = {
+  securityJsCode: '222a71664e09faba3c60b0180b4d752c',
+}
 
-import {useUserStore} from "@/store";
+// 先加载高德地图，然后初始化应用
+AMapLoader.load({
+  key: 'e429535a4e35e969ff396bed5116d30e',
+  version: '2.0',
+}).then(() => {
+  const app = createApp(App);
+  const pinia = createPinia();
+  
+  app.use(ElementPlus, { size: 'small' });
+  app.use(pinia);
+  app.use(router);
+  app.config.globalProperties.$request = request;
 
-//钩子函数，访问路由前调用
-router.beforeEach((to, from, next) => {
+  // 路由守卫
+  router.beforeEach((to, from, next) => {
     const store = useUserStore()
-    console.log(store)
-    //路由需要认证
-        if (to.meta.requireAuth) {
-            //判断store里是否有token
-            if (store.token) {
-                next()
-            } else {
-                next({
-                    path: 'login',
-                    query: { redirect: to.fullPath }
-                })
-            }
-        } else {
-            next()
-        }
+    if (to.meta.requireAuth) {
+      if (store.token) {
+        next()
+      } else {
+        next({
+          path: 'login',
+          query: { redirect: to.fullPath }
+        })
+      }
+    } else {
+      next()
     }
-)
-app.mount('#app')
+  });
+
+  app.mount('#app');
+}).catch(e => {
+  console.error('高德地图加载失败：', e);
+});
