@@ -3,9 +3,7 @@ package com.example.intelligentdispatchingsystem.mapper;
 import com.example.intelligentdispatchingsystem.entity.info.Skills;
 import com.example.intelligentdispatchingsystem.entity.role.Employee;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -30,4 +28,10 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
             "JOIN user u ON e.user_id = u.user_id " +
             "WHERE e.employee_id = #{employeeId}")
     String getEmployeeAddress(@Param("employeeId") Integer employeeId);
+    // 在EmployeeMapper接口中添加以下方法
+    @Insert("INSERT INTO employee_skills (employee_id, skill_id) VALUES (#{employeeId}, #{skillId})")
+    int addEmployeeSkill(@Param("employeeId") Integer employeeId, @Param("skillId") Integer skillId);
+
+    @Delete("DELETE FROM employee_skills WHERE employee_id = #{employeeId}")
+    int removeEmployeeSkills(@Param("employeeId") Integer employeeId);
 }

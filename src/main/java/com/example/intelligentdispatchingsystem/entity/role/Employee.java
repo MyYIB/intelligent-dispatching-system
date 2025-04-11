@@ -54,7 +54,7 @@ public class Employee implements Serializable {
 
     private String status;
     @TableField(exist = false)
-    private List<String> skills;
+    private List<Integer> skills;
     @TableField(exist = false)
     private String address;
 }

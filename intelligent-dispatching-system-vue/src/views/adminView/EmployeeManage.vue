@@ -2,7 +2,7 @@
 import {nextTick, onMounted, reactive, ref} from "vue";
 import request from "@/utils/request";
 import {ElMessage, ElNotification} from "element-plus";
-import {CirclePlus, Download, Edit, List, Location, Phone, Remove, Search, Upload} from "@element-plus/icons-vue";
+import {CirclePlus, Edit, List, Location, Phone, Remove, Search} from "@element-plus/icons-vue";
 import {debounce} from 'lodash-es';
 // 响应式数据
 const employeeName = ref(""); // 搜索的姓名
@@ -17,7 +17,7 @@ const tableData = ref([]);
 const ifAdd = ref(true);
 const headerBg = "headerBg";
 const UserForm = reactive({
-  username: "",
+  name: "",
   phone: "",
   email: "",
   address: "",
@@ -26,7 +26,7 @@ const UserForm = reactive({
 });
 const UserFormRef = ref(null);
 const rules = {
-  username: [{ required: true, message: "请输入员工名称", trigger: "blur" }],
+  name: [{ required: true, message: "请输入员工名称", trigger: "blur" }],
   phone: [{ required: true, message: "请输入员工手机", trigger: "blur" }],
   email: [{ required: true, message: "请输入员工邮箱", trigger: "blur" }],
   address: [{ required: true, message: "请输入员工地址", trigger: "blur" }],
@@ -37,8 +37,6 @@ const skillsList = ref([]);
 const levelOptions = ref([1,2,3,4,5,6,7,8,9,10]);
 // 保存员工技能
 const employeeSkills = ref({});
-// 后端接口地址
-const baseURL =  "http://localhost:8081";
 // 地图对话框控制变量和当前选中的位置
 const mapDialogVisible = ref(false);
 const currentLocation = ref(null);
@@ -63,7 +61,7 @@ const load = debounce(() => {
 const newUser = async () => {
   try {
     await UserFormRef.value.validate(); // 直接 await validate()，它会返回一个 Promise
-    const url = ifAdd.value ? "employee/addNewUser" : "employee/updateUser";
+    const url = ifAdd.value ? "employee/addNewEmployee" : "employee/updateEmployee";
     const res = await request.post(url, UserForm);
     if (res.data.status === 200) {
       ElNotification({ title: "成功", message: res.data.msg, type: "success" });
@@ -75,6 +73,7 @@ const newUser = async () => {
   } catch (error) {
     ElMessage.error("请按要求输入");
   }
+  console.log(UserForm)
 };
 
 // 处理分页
@@ -157,27 +156,20 @@ const delBatch = () => {
     }
   });
 };
-//导入文件
-const handleExcelImportSuccess = () =>{
-  ElMessage.success("导入文件成功")
-  load();
-}
-//导出文件
-const exportExcel = () =>{
-  window.open(`${baseURL}/employee/export`);
-}
+
+
 //展示员工技能
 const loadEmployeeSkills =(id) => {
   if(!employeeSkills.value[id]){
     request.get(`employee/getEmployeeSkills?employeeId=${id}`,{})
-    .then((res) => {
-      if (res.data.status === 200) {
-        const skills = res.data.data.map(skill => skill.skillName);
-        employeeSkills.value[id] = skills;
-      }else{
-        ElMessage.error(res.data.msg)
-      }
-  })
+        .then((res) => {
+          if (res.data.status === 200) {
+            const skills = res.data.data.map(skill => skill.skillName);
+            employeeSkills.value[id] = skills;
+          }else{
+            ElMessage.error(res.data.msg)
+          }
+        })
   }else {
     return null
   }
@@ -202,7 +194,7 @@ const handleDialogClose = () => {
 // 展示位置方法
 const showLocation = async (row) => {
   if (row.locationLatitude && row.locationLongitude) {
-    
+
     console.log('位置数据:', row.locationLatitude, row.locationLongitude);
     currentLocation.value = {
       latitude: row.locationLatitude,
@@ -210,54 +202,54 @@ const showLocation = async (row) => {
       name: row.name
     };
     mapDialogVisible.value = true;
-    
+
     // 等待对话框渲染完成
     await nextTick();
     await new Promise(resolve => setTimeout(resolve, 100)); // 添加短暂延迟
-    
+
     try {
       // 每次都重新创建地图实例
       if (map.value) {
         map.value.destroy();
         map.value = null;
       }
-      
+
       const container = document.getElementById('container');
       if (!container) {
         throw new Error('地图容器不存在');
       }
-      
+
       // 确保经纬度是数值类型
       const lng = parseFloat(currentLocation.value.longitude);
       const lat = parseFloat(currentLocation.value.latitude);
-      
+
       if (isNaN(lng) || isNaN(lat)) {
         throw new Error('经纬度格式不正确');
       }
-      
+
       console.log('创建地图:', lng, lat);
-      
+
       map.value = new window.AMap.Map(container, {
         zoom: 13,
         center: [lng, lat],
         resizeEnable: true
       });
-      
+
       marker.value = new window.AMap.Marker({
         position: [lng, lat],
         title: currentLocation.value.name,
       });
       map.value.add(marker.value);
-      
+
       // 添加信息窗体
       const infoWindow = new window.AMap.InfoWindow({
         content: `<div style="padding: 8px;">${currentLocation.value.name}</div>`,
         offset: new window.AMap.Pixel(0, -30)
       });
-      
+
       // 默认打开信息窗体
       infoWindow.open(map.value, [lng, lat]);
-      
+
     } catch (error) {
       console.error('地图初始化失败:', error);
       ElMessage.error(`地图加载失败: ${error.message}`);
@@ -333,16 +325,6 @@ onMounted(load,loadSkills());
           <el-button type="danger">批量删除 <el-icon><Remove /></el-icon></el-button>
         </template>
       </el-popconfirm>
-      <el-upload
-          :action='`${baseURL}/user/import`'
-          :show-file-list="false"
-          accept="xlsx"
-          :on-success="handleExcelImportSuccess"
-          style="display: inline-block"
-      >
-        <el-button type="primary" class="ml-5">导入 <el-icon><Download /></el-icon></el-button>
-      </el-upload>
-      <el-button type="primary" @click="exportExcel" class="ml-5">导出 <el-icon><Upload /></el-icon></el-button>
     </div>
 
     <!-- 表格 -->
@@ -354,21 +336,27 @@ onMounted(load,loadSkills());
       <el-table-column prop="phone" label="电话" />
       <el-table-column prop="address" label="家庭地址" />
       <el-table-column prop="skillLevel" label="等级" >
+
         <template #default="{ row }">
-          <el-progress
-              :stroke-width="20"
-              :text-inside="true"
-              :percentage=showLevel(row)
-          >
-            <span style="color: #333333">{{row.levelPoint}}/100</span>
-          </el-progress>
+          <div style="display: flex; align-items: center;">
+            <span class="levelText">{{ row.skillLevel }}</span>  <!-- 等级文本 -->
+            <el-progress
+                :stroke-width="25"
+                :text-inside="true"
+                :percentage="showLevel(row)"
+                style="flex: 1;"
+            >
+              <span style="color: #333333">{{ row.levelPoint }}/100</span>
+            </el-progress>
+          </div>
         </template>
+
       </el-table-column>
       <el-table-column label="技能集" >
         <template #default="{ row }">
           <el-tooltip :content="employeeSkills[row.employeeId]?.join('，') || '暂无技能'" placement="top" effect="light">
-          <el-icon @mouseenter="loadEmployeeSkills(row.employeeId)"
-                   style="cursor: pointer"><List /></el-icon>
+            <el-icon @mouseenter="loadEmployeeSkills(row.employeeId)"
+                     style="cursor: pointer"><List /></el-icon>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -400,7 +388,7 @@ onMounted(load,loadSkills());
               confirm-button-text="确定"
               cancel-button-text="我再想想"
               title="您确定删除吗？"
-              @confirm="del(row.userId)"
+              @confirm="del(row.employeeId)"
           >
             <template #reference>
               <el-button type="danger">删除 <el-icon><Remove /></el-icon></el-button>
@@ -424,8 +412,8 @@ onMounted(load,loadSkills());
     <!-- 新增/编辑用户弹窗 -->
     <el-dialog :title="userDialogTitle" v-model="userDialogForm" width="35%">
       <el-form :model="UserForm" ref="UserFormRef" :rules="rules">
-        <el-form-item label="员工姓名" prop="username">
-          <el-input v-model="UserForm.username" autocomplete="off" />
+        <el-form-item label="员工姓名" prop="name">
+          <el-input v-model="UserForm.name" autocomplete="off" />
         </el-form-item>
         <el-form-item label="员工电话" prop="phone">
           <el-input v-model="UserForm.phone" autocomplete="off" />
@@ -461,24 +449,29 @@ onMounted(load,loadSkills());
         <el-button type="primary" @click="newUser()">确 定</el-button>
       </template>
     </el-dialog>
-    
+
     <!-- 地图对话框 -->
     <el-dialog
-      v-model="mapDialogVisible"
-      title="员工位置"
-      width="50%"
-      destroy-on-close
-      @closed="handleDialogClose"
-      :append-to-body="true"
+        v-model="mapDialogVisible"
+        title="员工位置"
+        width="50%"
+        destroy-on-close
+        @closed="handleDialogClose"
+        :append-to-body="true"
     >
-    <div id="container" style="height: 400px; width: 100%; position: relative;"></div>
+      <div id="container" style="height: 400px; width: 100%; position: relative;"></div>
     </el-dialog>
   </div>
 </template>
 
 <style scoped>
-.amap-container {
-  width: 100%;
-  height: 100%;
+
+.levelText {
+  margin-right: 5px;
+  font-family: 'Arial', sans-serif; /* 更改字体 */
+  font-size: 12px; /* 调整字体大小 */
+  font-weight: bold; /* 字体加粗 */
+  color: #4A4A4A; /* 更改文本颜色 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* 添加文本阴影 */
 }
 </style>

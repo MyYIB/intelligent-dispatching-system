@@ -30,4 +30,28 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     public String getEmployeeAddress(Integer employeeId) {
         return employeeMapper.getEmployeeAddress(employeeId);
     }
+
+    @Override
+    public boolean addEmployeeSkills(Integer employeeId, List<Integer> skillIds) {
+        try {
+            for (Integer skillId : skillIds) {
+                employeeMapper.addEmployeeSkill(employeeId, skillId);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeEmployeeSkills(Integer employeeId) {
+        try {
+            employeeMapper.removeEmployeeSkills(employeeId);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
