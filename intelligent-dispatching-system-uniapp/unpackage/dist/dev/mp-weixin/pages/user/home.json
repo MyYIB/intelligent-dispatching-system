@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "用户首页",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "tab-bar": "../../components/tab-bar/index"
+  }
+}

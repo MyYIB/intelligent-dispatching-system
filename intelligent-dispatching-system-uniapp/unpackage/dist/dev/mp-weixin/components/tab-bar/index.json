@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "usingComponents": {
+    "uni-icons": "../../node-modules/@dcloudio/uni-ui/lib/uni-icons/uni-icons",
+    "sign-overlay": "../overlay/sign",
+    "order-overlay": "../overlay/order"
+  }
+}
