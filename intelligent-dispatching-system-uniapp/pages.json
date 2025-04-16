@@ -1,17 +1,67 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
-			"path": "pages/index/index",
+			"path": "pages/index",
 			"style": {
-				"navigationBarTitleText": "uni-app x"
+				"navigationBarTitleText": "智能派工系统",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/home",
+			"style": {
+				"navigationBarTitleText": "用户首页",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/user/info",
+			"style": {
+				"navigationBarTitleText": "个人信息",
+				"navigationStyle": "default"
+			}
+		},
+
+		{
+			"path": "pages/login/Login",
+			"style": {
+				"navigationBarTitleText": "登录/注册"
+			}
+		},
+		{
+			"path": "pages/employee/home",
+			"style": {
+				"navigationBarTitleText": "工作台",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/employee/info",
+			"style": {
+				"navigationBarTitleText": "员工信息",
+				"navigationStyle": "default"
+			}
+		},
+		{
+			"path": "pages/base/about",
+			"style": {
+				"navigationBarTitleText": "关于"
 			}
 		}
 	],
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+		"^tab-bar$": "@/components/tab-bar/index",
+		"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1",
+		"^sign-overlay$": "@/components/overlay/sign",
+		"^order-overlay$": "@/components/overlay/order"
+		}
+  	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app x",
+		"navigationBarTitleText": "智能派工系统",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
-	},
-	"uniIdRouter": {}
+	}
 }

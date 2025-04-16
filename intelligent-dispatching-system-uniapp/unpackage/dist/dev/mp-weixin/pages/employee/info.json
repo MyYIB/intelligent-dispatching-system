@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "员工信息",
+  "navigationStyle": "default",
+  "usingComponents": {
+    "uni-icons": "../../node-modules/@dcloudio/uni-ui/lib/uni-icons/uni-icons",
+    "tab-bar": "../../components/tab-bar/index"
+  }
+}

@@ -1,0 +1,1 @@
+<view class="login-page data-v-0a03bc64"><view class="login-box data-v-0a03bc64"><view class="header data-v-0a03bc64"><text class="title data-v-0a03bc64">{{a}}</text></view><login-form wx:if="{{b}}" class="data-v-0a03bc64" u-i="0a03bc64-0" bind:__l="__l" u-p="{{c}}"/><register-form wx:else class="data-v-0a03bc64" u-i="0a03bc64-1" bind:__l="__l" u-p="{{d||''}}"/></view></view>

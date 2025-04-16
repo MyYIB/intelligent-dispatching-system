@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "pages/index",
+    "pages/user/home",
+    "pages/user/info",
+    "pages/login/Login",
+    "pages/employee/home",
+    "pages/employee/info",
+    "pages/base/about"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "智能派工系统",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "usingComponents": {}
+}

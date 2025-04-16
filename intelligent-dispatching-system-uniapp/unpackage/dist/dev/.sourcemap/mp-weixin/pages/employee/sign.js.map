@@ -1,0 +1,1 @@
+{"version":3,"file":"sign.js","sources":["../../../HBuilderX/plugins/uniapp-cli-vite/uniPage:/cGFnZXMvZW1wbG95ZWUvc2lnbi52dWU"],"sourcesContent":["import MiniProgramPage from 'D:/codelib/project/intelligent-dispatching-system/intelligent-dispatching-system-uniapp/pages/employee/sign.vue'\nwx.createPage(MiniProgramPage)"],"names":[],"mappings":";;;;;;;AACA,GAAG,WAAW,eAAe;"}
