@@ -1,5 +1,8 @@
 {
   "navigationBarTitleText": "工作台",
   "navigationStyle": "custom",
-  "usingComponents": {}
+  "usingComponents": {
+    "tab-bar": "../../components/tab-bar/index",
+    "order-card": "../../components/order-card/index"
+  }
 }

@@ -48,6 +48,7 @@ const handleLogin = async () => {
     });
     
     if (res.status === 200) {
+      console.log(res.data)
       const { token, user } = res.data;
       
       // 存储token到本地存储

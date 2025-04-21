@@ -10852,6 +10852,7 @@ const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {
 };
 const onShow = /* @__PURE__ */ createHook(ON_SHOW);
 const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
+const onUnload = /* @__PURE__ */ createHook(ON_UNLOAD);
 const fontData = [
   {
     "font_class": "arrow-down",
@@ -11510,6 +11511,7 @@ exports.o = o$1;
 exports.onLoad = onLoad;
 exports.onMounted = onMounted;
 exports.onShow = onShow;
+exports.onUnload = onUnload;
 exports.p = p$1;
 exports.reactive = reactive;
 exports.ref = ref;

@@ -1,6 +1,7 @@
 package com.example.intelligentdispatchingsystem.entity.role;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -42,4 +43,6 @@ public class User implements Serializable {
     private LocalDateTime createdAt;
 
     private String account;
+    @TableField(exist = false)
+    private Integer employeeId;
 }

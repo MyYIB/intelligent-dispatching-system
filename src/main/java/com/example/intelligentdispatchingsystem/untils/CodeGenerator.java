@@ -20,7 +20,7 @@ public class CodeGenerator {
                             .pathInfo(null); // 不生成 XML
                 })
                 .strategyConfig(builder -> {
-                    builder.addInclude("work_orders") // 设置要生成的表
+                    builder.addInclude("dispatch_records") // 设置要生成的表
 
                             .addTablePrefix("t_")// 忽略表前缀（如 t_user → User）
                             .controllerBuilder().disable();

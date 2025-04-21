@@ -4,8 +4,8 @@
     <view class="map-container">
       <map 
         class="order-map" 
-        :latitude="orderDetail.location_latitude || 39.909" 
-        :longitude="orderDetail.location_longitude || 116.397" 
+        :latitude="orderDetail.locationLatitude || 39.909" 
+        :longitude="orderDetail.locationLongitude || 116.397" 
         :markers="markers"
         scale="16"
       ></map>
@@ -26,14 +26,17 @@
         
         <view class="info-item">
           <text class="item-label">工单编号</text>
-          <text class="item-value">{{ orderDetail.order_id || '暂无' }}</text>
+          <text class="item-value">{{ orderDetail.orderId || '暂无' }}</text>
         </view>
         
         <view class="info-item">
-          <text class="item-label">报修类型</text>
-          <text class="item-value">{{ getOrderTypeName(orderDetail.order_type) }}</text>
+          <text class="item-label">工单类型</text>
+          <text class="item-value">{{ getOrderTypeName(orderDetail.orderType) }}</text>
         </view>
-        
+        <view class="info-item">
+          <text class="item-label">报修类型</text>
+          <text class="item-value">{{ getRepairTypeName(orderDetail.repairType) }}</text>
+        </view>
         <view class="info-item">
           <text class="item-label">报修位置</text>
           <text class="item-value">{{ orderDetail.location || '暂无' }}</text>
@@ -41,13 +44,9 @@
         
         <view class="info-item">
           <text class="item-label">创建时间</text>
-          <text class="item-value">{{ formatTime(orderDetail.created_at) }}</text>
+          <text class="item-value">{{ formatTime(orderDetail.createdAt) }}</text>
         </view>
         
-        <view class="info-item" v-if="orderDetail.priority">
-          <text class="item-label">优先级</text>
-          <text class="item-value">{{ getPriorityText(orderDetail.priority) }}</text>
-        </view>
         
         <view class="info-item" v-if="orderDetail.deadline">
           <text class="item-label">截止时间</text>
@@ -76,7 +75,7 @@
           <text class="item-value">{{ employeeName || '工号: ' + orderDetail.assigned_employee }}</text>
         </view>
         
-        <view class="info-item" v-if="orderDetail.resolved_at">
+        <view class="info-item" v-if="orderDetail.resolvedAt">
           <text class="item-label">解决时间</text>
           <text class="item-value">{{ formatTime(orderDetail.resolved_at) }}</text>
         </view>
@@ -91,7 +90,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { getOrderDetail, cancelOrder as apiCancelOrder } from '@/api/orderAPI.js';
 import { onLoad } from '@dcloudio/uni-app';  // 正确导入 onLoad
 
@@ -197,12 +196,30 @@ const formatTime = (timestamp) => {
 // 获取工单类型名称
 const getOrderTypeName = (type) => {
   const typeMap = {
-    'repair': '设备报修',
+    'nrepair': '设备报修',
     'complaint': '服务投诉'
   };
   return typeMap[type] || '未知类型';
 };
-
+// 获取工单类型名称
+const getRepairTypeName = (type) => {
+  const typeMap = {
+    1: '宽带故障',
+    2: '网络卡顿',
+    3: '断网问题',
+    4: '路由器问题',
+    5: '设备损坏',
+    6: '网络延迟高',
+    7: '电视信号问题',
+    8: 'Wi-Fi信号弱',
+    10: '5G信号差',
+    11: '机房维护',
+    12: '电缆故障',
+    13: '远程协助请求',
+    14: '设备升级'
+  };
+  return typeMap[type] || '未知类型';
+};
 // 获取状态文本
 const getStatusText = (status) => {
   const statusMap = {
@@ -227,17 +244,6 @@ const getStatusClass = (status) => {
   return classMap[status] || '';
 };
 
-// 获取优先级文本
-const getPriorityText = (priority) => {
-  const priorityMap = {
-    1: '低',
-    2: '中',
-    3: '高',
-    4: '紧急',
-    5: '特急'
-  };
-  return priorityMap[priority] || `${priority}级`;
-};
 
 // 修改：使用 onLoad 钩子正确获取参数
 onLoad((options) => {

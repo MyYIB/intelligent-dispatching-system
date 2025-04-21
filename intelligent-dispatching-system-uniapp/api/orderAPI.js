@@ -4,7 +4,10 @@ import { request } from './request.js';
 export function getUserOrders(userId) {
   return request(`/order/user/list?userId=${userId}`, 'GET');
 }
-
+// 获取员工工单列表
+export function getEmployeeOrders(employeeId) {
+  return request(`/order/employee/list?employeeId=${employeeId}`, 'GET');
+}
 // 获取工单详情
 export function getOrderDetail(orderId) {
   return request(`/order/detail?orderId=${orderId}`, 'GET');

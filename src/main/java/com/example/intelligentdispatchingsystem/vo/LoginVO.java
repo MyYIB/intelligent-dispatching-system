@@ -8,4 +8,5 @@ public class LoginVO {
     private Integer id;
     private String token;
     private User user;
+
 }

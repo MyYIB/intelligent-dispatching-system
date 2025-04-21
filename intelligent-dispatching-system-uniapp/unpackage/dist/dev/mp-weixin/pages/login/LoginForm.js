@@ -48,6 +48,7 @@ const _sfc_main = {
           password: loginForm.password
         });
         if (res.status === 200) {
+          common_vendor.index.__f__("log", "at pages/login/LoginForm.vue:51", res.data);
           const { token, user } = res.data;
           common_vendor.index.setStorageSync("token", token);
           common_vendor.index.setStorageSync("userInfo", JSON.stringify(user));
@@ -75,7 +76,7 @@ const _sfc_main = {
           title: "网络错误，请稍后重试",
           icon: "none"
         });
-        common_vendor.index.__f__("error", "at pages/login/LoginForm.vue:84", err);
+        common_vendor.index.__f__("error", "at pages/login/LoginForm.vue:85", err);
       } finally {
         loading.value = false;
       }
