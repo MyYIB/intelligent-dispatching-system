@@ -6,9 +6,8 @@ const emit = defineEmits(['close', 'success']);
 
 // 报修类型
 const repairTypes = [
-  { id: 1, icon: 'home', name: '家电维修' },
-  { id: 2, icon: 'settings', name: '设备故障' },
-  { id: 3, icon: 'staff', name: '其他问题' }
+  { id: 1, icon: 'settings', name: '报修', page: '/pages/user/repair' },
+  { id: 2, icon: 'staff', name: '投诉', page: '/pages/user/complaint' }
 ];
 
 // 选中的报修类型
@@ -24,11 +23,11 @@ const closeOverlay = () => {
   emit('close');
 };
 
-// 去报修页面
-const goToOrderPage = () => {
+// 去对应页面
+const goToPage = () => {
   if (!selectedType.value) {
     uni.showToast({
-      title: '请选择报修类型',
+      title: '请选择类型',
       icon: 'none'
     });
     return;
@@ -37,9 +36,9 @@ const goToOrderPage = () => {
   // 关闭弹窗
   emit('close');
   
-  // 跳转到报修页面，并传递选中的类型
+  // 跳转到对应页面
   uni.navigateTo({
-    url: `/pages/user/order?type=${selectedType.value.id}&typeName=${selectedType.value.name}`
+    url: selectedType.value.page
   });
 };
 </script>
@@ -48,12 +47,12 @@ const goToOrderPage = () => {
   <view class="order-overlay">
     <view class="order-container">
       <view class="order-header">
-        <text class="order-title">快速报修</text>
+        <text class="order-title">快速服务</text>
         <uni-icons type="close" size="20" color="#999" @click="closeOverlay"></uni-icons>
       </view>
       
       <view class="order-content">
-        <text class="order-tip">请选择报修类型：</text>
+        <text class="order-tip">请选择服务类型：</text>
         
         <view class="repair-types">
           <view 
@@ -71,8 +70,8 @@ const goToOrderPage = () => {
         <button 
           class="order-btn" 
           type="primary" 
-          @click="goToOrderPage"
-        >去报修</button>
+          @click="goToPage"
+        >确定</button>
       </view>
     </view>
   </view>

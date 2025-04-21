@@ -3,6 +3,9 @@
     "pages/index",
     "pages/user/home",
     "pages/user/info",
+    "pages/user/repair",
+    "pages/user/complaint",
+    "pages/user/order-detail",
     "pages/login/Login",
     "pages/employee/home",
     "pages/employee/info",
@@ -13,6 +16,14 @@
     "navigationBarTitleText": "智能派工系统",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
+  },
+  "requiredPrivateInfos": [
+    "chooseLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于报修位置的选择"
+    }
   },
   "usingComponents": {}
 }

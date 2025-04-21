@@ -6,6 +6,10 @@ function login(data) {
 function register(data) {
   return api_request.request("/login/register", "POST", data);
 }
+function getRepairT() {
+  return api_request.request("/user/getRepairType", "GET");
+}
+exports.getRepairT = getRepairT;
 exports.login = login;
 exports.register = register;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/api/userAPI.js.map

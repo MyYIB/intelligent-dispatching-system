@@ -8,7 +8,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.intelligentdispatchingsystem.common.ServerResponse;
+import com.example.intelligentdispatchingsystem.entity.info.ReparType;
 import com.example.intelligentdispatchingsystem.entity.role.User;
+import com.example.intelligentdispatchingsystem.service.IReparTypeService;
 import com.example.intelligentdispatchingsystem.service.IUserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
@@ -35,7 +37,8 @@ import java.util.Map;
 public class UserController {
     @Resource
     private IUserService userService;
-
+    @Resource
+    private IReparTypeService repairTypeService;
     /***
      * 分页查询,输入页数与每页的个数
      * @param pageNum·~
@@ -104,5 +107,17 @@ public class UserController {
         }
     }
 
-
+    @GetMapping("getRepairType")
+    public ServerResponse<Object> getRepairType(){
+        // 创建查询条件
+        QueryWrapper<ReparType> queryWrapper = new QueryWrapper<>();
+        // 获取所有维修类型
+        List<ReparType> repairTypes = repairTypeService.list(queryWrapper);
+        
+        if (repairTypes != null && !repairTypes.isEmpty()) {
+            return ServerResponse.createSuccess(repairTypes);
+        } else {
+            return ServerResponse.createBySuccessMsg("暂无维修类型数据");
+        }
+    }
 }

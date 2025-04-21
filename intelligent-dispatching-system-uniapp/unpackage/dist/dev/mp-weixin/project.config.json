@@ -18,8 +18,8 @@
     }
   },
   "compileType": "miniprogram",
-  "libVersion": "3.8.0",
-  "appid": "touristappid",
+  "libVersion": "3.8.1",
+  "appid": "wx7a5d828f0fc04cfe",
   "projectname": "intelligent-dispatching-system-uniapp",
   "condition": {},
   "editorSetting": {

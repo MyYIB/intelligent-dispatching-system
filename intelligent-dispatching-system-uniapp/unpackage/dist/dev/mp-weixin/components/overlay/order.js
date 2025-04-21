@@ -14,9 +14,8 @@ const _sfc_main = {
   setup(__props, { emit: __emit }) {
     const emit = __emit;
     const repairTypes = [
-      { id: 1, icon: "home", name: "家电维修" },
-      { id: 2, icon: "settings", name: "设备故障" },
-      { id: 3, icon: "staff", name: "其他问题" }
+      { id: 1, icon: "settings", name: "报修", page: "/pages/user/repair" },
+      { id: 2, icon: "staff", name: "投诉", page: "/pages/user/complaint" }
     ];
     const selectedType = common_vendor.ref(null);
     const selectType = (type) => {
@@ -25,17 +24,17 @@ const _sfc_main = {
     const closeOverlay = () => {
       emit("close");
     };
-    const goToOrderPage = () => {
+    const goToPage = () => {
       if (!selectedType.value) {
         common_vendor.index.showToast({
-          title: "请选择报修类型",
+          title: "请选择类型",
           icon: "none"
         });
         return;
       }
       emit("close");
       common_vendor.index.navigateTo({
-        url: `/pages/user/order?type=${selectedType.value.id}&typeName=${selectedType.value.name}`
+        url: selectedType.value.page
       });
     };
     return (_ctx, _cache) => {
@@ -60,7 +59,7 @@ const _sfc_main = {
             f: common_vendor.o(($event) => selectType(type), type.id)
           };
         }),
-        d: common_vendor.o(goToOrderPage)
+        d: common_vendor.o(goToPage)
       };
     };
   }

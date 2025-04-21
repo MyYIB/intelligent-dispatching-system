@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { onShow, onNavigationBarButtonTap } from '@dcloudio/uni-app';
+import { onShow } from '@dcloudio/uni-app';
 import TabBar from '@/components/tab-bar/index.vue';
 
 // 用户信息

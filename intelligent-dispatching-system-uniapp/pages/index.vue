@@ -8,11 +8,8 @@ const userInfo = ref(null);
 const isLogin = ref(false);
 const userRole = ref('customer');
 
-// 菜单项列表，添加退出登录选项
-const menuList = [
-  { id: 1, icon: 'information-circle', text: '关于', url: '/pages/base/about', useImage: true },
-  { id: 2, icon: 'close-circle', text: '退出登录', isLogout: true, useImage: true }
-];
+// 菜单项列表，根据登录状态和角色动态显示
+const menuList = ref([]);
 
 // 检查登录状态
 const checkLoginStatus = () => {
@@ -25,12 +22,39 @@ const checkLoginStatus = () => {
       userRole.value = userInfo.value.role || 'customer';
       isLogin.value = true;
       
+      // 更新菜单项，根据角色设置菜单
+      updateMenuItems();
+      
     } catch (e) {
       isLogin.value = false;
+      updateMenuItems();
     }
   } else {
     isLogin.value = false;
+    updateMenuItems();
   }
+};
+
+// 根据登录状态和角色更新菜单项
+const updateMenuItems = () => {
+    if (userRole.value === 'technician') {
+      // 技术员菜单项
+      menuList.value = [
+        { id: 1, text: '个人资料', icon: 'person', url: '/pages/employee/profile' },
+        { id: 2, text: '技能管理', icon: 'star', url: '/pages/employee/skills' },
+        { id: 3, text: '关于', useImage: true, url: '/pages/base/about' },
+        { id: 4, text: '退出登录', isLogout: true, useImage: true }
+      ];
+    } else {
+      // 普通用户菜单项
+      menuList.value = [
+        { id: 1, text: '个人资料', icon: 'person', url: '/pages/user/profile' },
+        { id: 2, text: '地址管理', icon: 'location', url: '/pages/user/address' },
+        { id: 3, text: '关于', useImage: true, url: '/pages/base/about' },
+        { id: 4, text: '退出登录', isLogout: true, useImage: true }
+      ];
+    }
+  
 };
 
 // 跳转到登录页面或用户信息页面
@@ -65,6 +89,9 @@ const handleMenuClick = (item) => {
           isLogin.value = false;
           userInfo.value = null;
           userRole.value = 'customer';
+          
+          // 更新菜单项
+          updateMenuItems();
           
           // 显示提示
           uni.showToast({
@@ -111,7 +138,6 @@ onShow(() => {
       v-for="item in menuList" 
       :key="item.id" 
       @click="handleMenuClick(item)"
-      v-show="!item.isLogout || isLogin"
     >
       <view class="menu-item-left">
         <view class="icon-wrapper">
@@ -121,7 +147,7 @@ onShow(() => {
             class="menu-icon"
           ></image>
           <image 
-            v-else-if="item.useImage" 
+            v-else-if="item.useImage && item.text === '关于'" 
             src="/static/images/about.png" 
             class="menu-icon"
           ></image>

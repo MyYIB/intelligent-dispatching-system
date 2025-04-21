@@ -1,13 +1,13 @@
 import { request } from './request.js';
 
 // 获取用户工单列表
-export function getUserOrders() {
-  return request('/order/user/list', 'GET');
+export function getUserOrders(userId) {
+  return request(`/order/user/list?userId=${userId}`, 'GET');
 }
 
 // 获取工单详情
 export function getOrderDetail(orderId) {
-  return request(`/order/detail/${orderId}`, 'GET');
+  return request(`/order/detail?orderId=${orderId}`, 'GET');
 }
 
 // 创建工单

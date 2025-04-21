@@ -46,5 +46,12 @@ public class LoginController {
             return ServerResponse.createError("未找到该用户");
         }
     }
-
+    @PostMapping("/register")
+    public ServerResponse<Object> register(@RequestBody User reqUser) {
+        if (userService.save(reqUser)) {
+            return ServerResponse.createBySuccessMsg("注册成功");
+        }else {
+            return ServerResponse.createError("注册失败");
+        }
+    }
 }

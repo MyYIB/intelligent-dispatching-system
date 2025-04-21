@@ -1,10 +1,17 @@
 <template>
-    <view class="home-container">
+  <view class="home-container">
+    <!-- 固定的顶部区域 -->
+    <view class="fixed-header">
+      <!-- 顶部安全区域 -->
+      <view class="safe-area-top"></view>
       <!-- 标题区域 -->
       <view class="header">
         <text class="title">我的报修</text>
       </view>
-      
+    </view>
+    
+    <!-- 可滚动的内容区域 -->
+    <scroll-view class="scrollable-content" scroll-y>
       <!-- 工单列表 -->
       <view class="order-list">
         <!-- 无数据提示 -->
@@ -13,41 +20,30 @@
           <text class="empty-text">暂无报修记录</text>
         </view>
         
-        <!-- 工单卡片 -->
-        <view 
-          class="order-card" 
+        <!-- 使用工单卡片组件 -->
+        <OrderCard 
           v-for="(item, index) in orderList" 
           :key="index"
-          @click="viewOrderDetail(item.id)"
-        >
-          <view class="order-header">
-            <text class="order-type">{{ item.type }}</text>
-            <text class="order-status" :class="getStatusClass(item.status)">{{ getStatusText(item.status) }}</text>
-          </view>
-          
-          <view class="order-content">
-            <text class="order-desc">{{ item.description }}</text>
-          </view>
-          
-          <view class="order-footer">
-            <text class="order-time">{{ formatTime(item.createTime) }}</text>
-          </view>
-        </view>
+          :order="item"
+          @click="viewOrderDetail"
+        />
       </view>
-      
-      <!-- 底部安全区域 -->
-      <view class="safe-area-bottom">
-            <!-- 底部导航栏 -->
-            <TabBar role="user" active="index" />
-      </view>
+    </scroll-view>
+    
+    <!-- 底部安全区域 -->
+    <view class="safe-area-bottom">
+      <!-- 底部导航栏 -->
+      <TabBar role="user" active="index" />
     </view>
-  </template>
-  
-  <script setup>
+  </view>
+</template>
+
+<script setup>
   import { ref, onMounted} from 'vue';
   import { getUserOrders } from '@/api/orderAPI.js';
   import { onShow } from '@dcloudio/uni-app';
   import TabBar from '@/components/tab-bar/index.vue';
+  import OrderCard from '@/components/order-card/index.vue';
 
   // 工单列表
   const orderList = ref([]);
@@ -56,9 +52,12 @@
   // 获取用户工单列表
   const fetchUserOrders = async () => {
     loading.value = true;
+    const userInfoStr = uni.getStorageSync('userInfo');
+    const userInfo = JSON.parse(userInfoStr);
     try {
-      const res = await getUserOrders();
-      if (res.code === 200) {
+      const res = await getUserOrders(userInfo.userId);
+      if (res.status === 200) {
+        console.log(res.data)
         orderList.value = res.data || [];
       } else {
         uni.showToast({
@@ -84,165 +83,92 @@
     });
   };
   
-  // 格式化时间
-  const formatTime = (timestamp) => {
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hour = date.getHours().toString().padStart(2, '0');
-    const minute = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${year}-${month}-${day} ${hour}:${minute}`;
-  };
-  
-  // 获取状态文本
-  const getStatusText = (status) => {
-    const statusMap = {
-      'pending': '待处理',
-      'processing': '处理中',
-      'completed': '已完成',
-      'cancelled': '已取消'
-    };
-    return statusMap[status] || '未知状态';
-  };
-  
-  // 获取状态样式类
-  const getStatusClass = (status) => {
-    const classMap = {
-      'pending': 'status-pending',
-      'processing': 'status-processing',
-      'completed': 'status-completed',
-      'cancelled': 'status-cancelled'
-    };
-    return classMap[status] || '';
-  };
-  
   onMounted(() => {
     fetchUserOrders();
+    uni.$on('order-updated', fetchUserOrders); 
   });
   
   onShow(() => {
     fetchUserOrders();
   });
-  </script>
-  
-  <style lang="scss" scoped>
-  .home-container {
-    padding: 30rpx;
-    background-color: #f5f5f5;
-    min-height: 100vh;
-  }
-  
-  .header {
-    margin-bottom: 30rpx;
-    padding: 20rpx 0;
-  }
-  
-  .title {
-    font-size: 36rpx;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .order-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20rpx;
-  }
-  
-  .empty-tip {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 100rpx 0;
-  }
-  
-  .empty-image {
-    width: 200rpx;
-    height: 200rpx;
-    margin-bottom: 20rpx;
-  }
-  
-  .empty-text {
-    font-size: 28rpx;
-    color: #999;
-  }
-  
-  .order-card {
-    background-color: #fff;
-    border-radius: 12rpx;
-    padding: 30rpx;
-    box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-  }
-  
-  .order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20rpx;
-  }
-  
-  .order-type {
-    font-size: 32rpx;
-    font-weight: 500;
-    color: #333;
-  }
-  
-  .order-status {
-    font-size: 26rpx;
-    padding: 6rpx 16rpx;
-    border-radius: 20rpx;
-  }
-  
-  .status-pending {
-    background-color: #FFF7E6;
-    color: #FA8C16;
-  }
-  
-  .status-processing {
-    background-color: #E6F7FF;
-    color: #1890FF;
-  }
-  
-  .status-completed {
-    background-color: #F6FFED;
-    color: #52C41A;
-  }
-  
-  .status-cancelled {
-    background-color: #F5F5F5;
-    color: #999;
-  }
-  
-  .order-content {
-    margin-bottom: 20rpx;
-  }
-  
-  .order-desc {
-    font-size: 28rpx;
-    color: #666;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .order-footer {
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .order-time {
-    font-size: 24rpx;
-    color: #999;
-  }
-  
-  .safe-area-bottom {
-    height: 100rpx;
-  }
-  </style>
+</script>
+
+<style lang="scss" scoped>
+.home-container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #f5f5f5;
+  z-index: 100;
+  padding: 0 30rpx;
+  height: 180rpx; // 顶部高度（含safe-area-top和header）
+}
+
+.safe-area-top {
+  height: 100rpx; /* 顶部安全区域 */
+}
+
+.header {
+  margin-bottom: 20rpx;
+  padding: 20rpx 0;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.scrollable-content {
+  flex: 1;
+  margin-top: 180rpx; /* 与fixed-header高度一致 */
+  padding: 0 30rpx;
+  padding-bottom: 120rpx; /* 留出底部安全区空间，避免被底部导航遮挡 */
+  box-sizing: border-box;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  /* 移除padding-bottom，避免重复 */
+}
+
+.empty-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 0;
+}
+
+.empty-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.safe-area-bottom {
+  height: 100rpx;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #fff;
+}
+</style>

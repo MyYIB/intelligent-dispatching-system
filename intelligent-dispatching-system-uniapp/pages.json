@@ -21,7 +21,28 @@
 				"navigationStyle": "default"
 			}
 		},
-
+		{
+			"path": "pages/user/repair",
+			"style": {
+				"navigationBarTitleText": "报修服务",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/user/complaint",
+			"style": {
+				"navigationBarTitleText": "投诉服务",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/user/order-detail",
+			"style": {
+				"navigationBarTitleText": "工单详情",
+				"navigationStyle": "default", 
+				"backgroundColor": "#f5f7fa"
+			}
+		},
 		{
 			"path": "pages/login/Login",
 			"style": {

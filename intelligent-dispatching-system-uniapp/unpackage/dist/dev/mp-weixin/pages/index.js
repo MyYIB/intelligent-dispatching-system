@@ -16,10 +16,7 @@ const _sfc_main = {
     const userInfo = common_vendor.ref(null);
     const isLogin = common_vendor.ref(false);
     const userRole = common_vendor.ref("customer");
-    const menuList = [
-      { id: 1, icon: "information-circle", text: "关于", url: "/pages/base/about", useImage: true },
-      { id: 2, icon: "close-circle", text: "退出登录", isLogout: true, useImage: true }
-    ];
+    const menuList = common_vendor.ref([]);
     const checkLoginStatus = () => {
       const token = common_vendor.index.getStorageSync("token");
       const userInfoStr = common_vendor.index.getStorageSync("userInfo");
@@ -28,11 +25,31 @@ const _sfc_main = {
           userInfo.value = JSON.parse(userInfoStr);
           userRole.value = userInfo.value.role || "customer";
           isLogin.value = true;
+          updateMenuItems();
         } catch (e) {
           isLogin.value = false;
+          updateMenuItems();
         }
       } else {
         isLogin.value = false;
+        updateMenuItems();
+      }
+    };
+    const updateMenuItems = () => {
+      if (userRole.value === "technician") {
+        menuList.value = [
+          { id: 1, text: "个人资料", icon: "person", url: "/pages/employee/profile" },
+          { id: 2, text: "技能管理", icon: "star", url: "/pages/employee/skills" },
+          { id: 3, text: "关于", useImage: true, url: "/pages/base/about" },
+          { id: 4, text: "退出登录", isLogout: true, useImage: true }
+        ];
+      } else {
+        menuList.value = [
+          { id: 1, text: "个人资料", icon: "person", url: "/pages/user/profile" },
+          { id: 2, text: "地址管理", icon: "location", url: "/pages/user/address" },
+          { id: 3, text: "关于", useImage: true, url: "/pages/base/about" },
+          { id: 4, text: "退出登录", isLogout: true, useImage: true }
+        ];
       }
     };
     const goToLogin = () => {
@@ -59,6 +76,7 @@ const _sfc_main = {
               isLogin.value = false;
               userInfo.value = null;
               userRole.value = "customer";
+              updateMenuItems();
               common_vendor.index.showToast({
                 title: "已退出登录",
                 icon: "success"
@@ -90,12 +108,12 @@ const _sfc_main = {
         d: common_vendor.o(goToLogin),
         e: common_vendor.t(isLogin.value ? (_b = userInfo.value) == null ? void 0 : _b.username : "未登录"),
         f: common_vendor.o(goToLogin),
-        g: common_vendor.f(menuList, (item, k0, i0) => {
+        g: common_vendor.f(menuList.value, (item, k0, i0) => {
           return common_vendor.e({
             a: item.useImage && item.isLogout
           }, item.useImage && item.isLogout ? {
             b: common_assets._imports_0$1
-          } : item.useImage ? {
+          } : item.useImage && item.text === "关于" ? {
             d: common_assets._imports_1
           } : {
             e: "02281a80-0-" + i0,
@@ -105,12 +123,11 @@ const _sfc_main = {
               color: "#666"
             })
           }, {
-            c: item.useImage,
+            c: item.useImage && item.text === "关于",
             g: common_vendor.t(item.text),
             h: "02281a80-1-" + i0,
             i: item.id,
-            j: common_vendor.o(($event) => handleMenuClick(item), item.id),
-            k: !item.isLogout || isLogin.value
+            j: common_vendor.o(($event) => handleMenuClick(item), item.id)
           });
         }),
         h: common_vendor.p({

@@ -26,7 +26,7 @@ export function changePassword(data) {
   return request('/user/password', 'POST', data);
 }
 
-// 退出登录
-export function logout() {
-  return request('/login/logout', 'POST');
+//获取保修类型
+export function getRepairT() {
+  return request('/user/getRepairType','GET');
 }
