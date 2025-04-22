@@ -26,7 +26,7 @@
       <el-menu-item v-if="isAdmin" index="/userManage">
         用户信息管理
       </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="1-2">
+      <el-menu-item v-if="isAdmin" index="/orderManage">
         报修处理
       </el-menu-item>
       <el-menu-item v-if="isAdmin" index="1-2">

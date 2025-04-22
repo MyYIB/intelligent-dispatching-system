@@ -43,6 +43,5 @@ public class User implements Serializable {
     private LocalDateTime createdAt;
 
     private String account;
-    @TableField(exist = false)
-    private Integer employeeId;
+
 }

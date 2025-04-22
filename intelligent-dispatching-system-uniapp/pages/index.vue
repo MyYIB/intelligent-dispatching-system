@@ -75,7 +75,8 @@ const goToLogin = () => {
 // 跳转到菜单项对应的页面
 const handleMenuClick = (item) => {
   if (item.isLogout) {
-    // 处理退出登录
+    if(isLogin.value){
+      // 处理退出登录
     uni.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
@@ -101,6 +102,14 @@ const handleMenuClick = (item) => {
         }
       }
     });
+    }else{
+      // 显示提示
+      uni.showToast({
+            title: '您未登录',
+            icon: 'success'
+          });
+    }
+    
   } else {
     uni.navigateTo({
       url: item.url

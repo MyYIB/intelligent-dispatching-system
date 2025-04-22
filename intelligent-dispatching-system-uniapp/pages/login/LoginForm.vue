@@ -48,29 +48,41 @@ const handleLogin = async () => {
     });
     
     if (res.status === 200) {
-      console.log(res.data)
-      const { token, user } = res.data;
-      
-      // 存储token到本地存储
-      uni.setStorageSync('token', token);
-      // 存储user到本地存储
-      uni.setStorageSync('userInfo', JSON.stringify(user));
-      
-      uni.showToast({
-        title: '登录成功',
-        icon: 'success'
-      });
-      
-      // 根据角色跳转到不同页面
-     if (user.role === 'technician') {
-        uni.reLaunch({
+      if(res.data.role === 'technician'){
+        const { token, employee,user } = res.data;
+         // 存储token到本地存储
+        uni.setStorageSync('token', token);
+        // 存储user到本地存储
+        uni.setStorageSync('userInfo', JSON.stringify(user));
+        // 存储employee到本地存储
+        uni.setStorageSync('employeeInfo', JSON.stringify(employee));
+        uni.showToast({
+          title: '登录成功',
+          icon: 'success' 
+         });
+         uni.reLaunch({
           url: '/pages/employee/home'
         });
-      } else {
+      } else if (res.data.role === 'customer') {
+        const { token, user } = res.data;
+         // 存储token到本地存储
+        uni.setStorageSync('token', token);
+        // 存储user到本地存储
+        uni.setStorageSync('userInfo', JSON.stringify(user));
+        
+        uni.showToast({
+          title: '登录成功',
+          icon: 'success'
+        });
         uni.reLaunch({
           url: '/pages/user/home'
         });
-      }
+        }else{
+          uni.showToast({
+          title: '账号类型不支持',
+          icon: 'none'
+          });
+        }
     } else {
       uni.showToast({
         title: res.msg || '登录失败',

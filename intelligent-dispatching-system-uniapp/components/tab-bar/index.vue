@@ -25,7 +25,7 @@ const customerTabs = [
 const employeeTabs = [
   { id: 'index', text: '工作台', icon: 'home', url: '/pages/employee/home' },
   { id: 'add', text: '', icon: 'add', isCenter: true },
-  { id: 'user', text: '我的', icon: 'person', url: '/pages/user/info' }
+  { id: 'user', text: '我的', icon: 'person', url: '/pages/employee/info' }
 ];
 
 // 根据角色选择导航项

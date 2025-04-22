@@ -48,21 +48,33 @@ const _sfc_main = {
           password: loginForm.password
         });
         if (res.status === 200) {
-          common_vendor.index.__f__("log", "at pages/login/LoginForm.vue:51", res.data);
-          const { token, user } = res.data;
-          common_vendor.index.setStorageSync("token", token);
-          common_vendor.index.setStorageSync("userInfo", JSON.stringify(user));
-          common_vendor.index.showToast({
-            title: "登录成功",
-            icon: "success"
-          });
-          if (user.role === "technician") {
+          if (res.data.role === "technician") {
+            const { token, employee, user } = res.data;
+            common_vendor.index.setStorageSync("token", token);
+            common_vendor.index.setStorageSync("userInfo", JSON.stringify(user));
+            common_vendor.index.setStorageSync("employeeInfo", JSON.stringify(employee));
+            common_vendor.index.showToast({
+              title: "登录成功",
+              icon: "success"
+            });
             common_vendor.index.reLaunch({
               url: "/pages/employee/home"
             });
-          } else {
+          } else if (res.data.role === "customer") {
+            const { token, user } = res.data;
+            common_vendor.index.setStorageSync("token", token);
+            common_vendor.index.setStorageSync("userInfo", JSON.stringify(user));
+            common_vendor.index.showToast({
+              title: "登录成功",
+              icon: "success"
+            });
             common_vendor.index.reLaunch({
               url: "/pages/user/home"
+            });
+          } else {
+            common_vendor.index.showToast({
+              title: "账号类型不支持",
+              icon: "none"
             });
           }
         } else {
@@ -76,7 +88,7 @@ const _sfc_main = {
           title: "网络错误，请稍后重试",
           icon: "none"
         });
-        common_vendor.index.__f__("error", "at pages/login/LoginForm.vue:85", err);
+        common_vendor.index.__f__("error", "at pages/login/LoginForm.vue:97", err);
       } finally {
         loading.value = false;
       }

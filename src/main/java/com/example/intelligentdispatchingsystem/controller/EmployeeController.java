@@ -207,4 +207,25 @@ public class EmployeeController {
             return ServerResponse.createError("更新员工失败: " + e.getMessage());
         }
     }
+    /**
+     * 获取所有可用的技术员
+     */
+    @GetMapping("/available")
+    public ServerResponse<List<Employee>> getAvailableEmployees() {
+        QueryWrapper<Employee> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status", "available");
+        queryWrapper.apply("current_workload < max_workload");; // 工作负载未达到最大值
+        queryWrapper.orderByAsc("current_workload"); // 按工作负载升序排序
+        
+        List<Employee> employees = employeeService.list(queryWrapper);
+        //获取技术员技能
+//        for (Employee employee: employees) {
+//            employee.setSkills(getEmployeeSkills(employee.getEmployeeId()));
+//        }
+        if (employees != null && !employees.isEmpty()) {
+            return ServerResponse.createSuccess(employees);
+        } else {
+            return ServerResponse.createError("暂无可用技术员");
+        }
+    }
 }

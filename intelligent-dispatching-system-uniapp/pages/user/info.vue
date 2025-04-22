@@ -65,8 +65,6 @@ const handleMenuClick = (item) => {
           // 更新状态
           isLogin.value = false;
           userInfo.value = null;
-          userRole.value = 'customer';
-          
           // 显示提示
           uni.showToast({
             title: '已退出登录',

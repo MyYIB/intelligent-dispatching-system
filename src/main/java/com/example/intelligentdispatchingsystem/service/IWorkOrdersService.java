@@ -12,4 +12,6 @@ public interface IWorkOrdersService extends IService<WorkOrders> {
     
     // 根据员工ID获取工单列表
     List<WorkOrders> getOrdersByEmployeeId(Integer employeeId);
+    // 分配工单给员工
+    boolean assignOrderToEmployee(Integer orderId, Integer employeeId);
 }

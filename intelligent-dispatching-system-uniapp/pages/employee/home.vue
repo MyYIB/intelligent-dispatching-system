@@ -51,7 +51,7 @@
     <!-- 底部安全区域 -->
     <view class="safe-area-bottom">
       <!-- 底部导航栏 -->
-      <TabBar role="employee" active="index" />
+      <TabBar role="technician" active="index" />
     </view>
   </view>
 </template>
@@ -67,7 +67,7 @@
   const orderList = ref([]);
   const loading = ref(false);
   const refreshing = ref(false);
-  const activeTab = ref('pending'); // 默认显示未完成工单
+  const activeTab = ref('assigned'); // 默认显示未完成工单
   
   // 根据当前选中的标签过滤工单列表
   const filteredOrderList = computed(() => {
@@ -115,10 +115,9 @@
       loading.value = false;
       return;
     }
-    
-    const userInfo = JSON.parse(userInfoStr);
-    console.log(userInfo)
-    if (!userInfo.employeeId) {
+    const employeeInfoStr = uni.getStorageSync('employeeInfo');
+    const employeeInfo = JSON.parse(employeeInfoStr);
+    if (!employeeInfo.employeeId) {
       uni.showToast({
         title: '员工ID不存在',
         icon: 'none'
@@ -128,7 +127,7 @@
     }
     
     try {
-      const res = await getEmployeeOrders(userInfo.employeeId);
+      const res = await getEmployeeOrders(employeeInfo.employeeId);
       if (res.status === 200 && res.data) {
         orderList.value = res.data.map(order => {
           // 处理工单数据，确保字段名称一致

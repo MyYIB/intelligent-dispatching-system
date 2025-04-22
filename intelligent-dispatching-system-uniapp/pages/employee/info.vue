@@ -99,8 +99,8 @@ onShow(() => {
 
 <template>
   <view class="container">
-    <!-- 顶部安全区域，避免被状态栏遮挡 -->
-    <view class="safe-area-top"></view>
+    <!-- 顶部安全区域，避免被状态栏遮挡
+    <view class="safe-area-top"></view> -->
     
     <!-- 用户信息区域 -->
     <view class="user-info-section">

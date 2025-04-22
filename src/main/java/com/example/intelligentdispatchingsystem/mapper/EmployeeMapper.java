@@ -28,7 +28,7 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
             "JOIN user u ON e.user_id = u.user_id " +
             "WHERE e.employee_id = #{employeeId}")
     String getEmployeeAddress(@Param("employeeId") Integer employeeId);
-    // 在EmployeeMapper接口中添加以下方法
+
     @Insert("INSERT INTO employee_skills (employee_id, skill_id) VALUES (#{employeeId}, #{skillId})")
     int addEmployeeSkill(@Param("employeeId") Integer employeeId, @Param("skillId") Integer skillId);
 
