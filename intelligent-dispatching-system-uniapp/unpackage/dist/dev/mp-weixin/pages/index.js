@@ -66,24 +66,31 @@ const _sfc_main = {
     };
     const handleMenuClick = (item) => {
       if (item.isLogout) {
-        common_vendor.index.showModal({
-          title: "提示",
-          content: "确定要退出登录吗？",
-          success: function(res) {
-            if (res.confirm) {
-              common_vendor.index.removeStorageSync("token");
-              common_vendor.index.removeStorageSync("userInfo");
-              isLogin.value = false;
-              userInfo.value = null;
-              userRole.value = "customer";
-              updateMenuItems();
-              common_vendor.index.showToast({
-                title: "已退出登录",
-                icon: "success"
-              });
+        if (isLogin.value) {
+          common_vendor.index.showModal({
+            title: "提示",
+            content: "确定要退出登录吗？",
+            success: function(res) {
+              if (res.confirm) {
+                common_vendor.index.removeStorageSync("token");
+                common_vendor.index.removeStorageSync("userInfo");
+                isLogin.value = false;
+                userInfo.value = null;
+                userRole.value = "customer";
+                updateMenuItems();
+                common_vendor.index.showToast({
+                  title: "已退出登录",
+                  icon: "success"
+                });
+              }
             }
-          }
-        });
+          });
+        } else {
+          common_vendor.index.showToast({
+            title: "您未登录",
+            icon: "success"
+          });
+        }
       } else {
         common_vendor.index.navigateTo({
           url: item.url

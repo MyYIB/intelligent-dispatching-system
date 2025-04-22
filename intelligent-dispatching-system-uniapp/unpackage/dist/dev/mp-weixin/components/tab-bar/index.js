@@ -33,7 +33,7 @@ const _sfc_main = {
     const employeeTabs = [
       { id: "index", text: "工作台", icon: "home", url: "/pages/employee/home" },
       { id: "add", text: "", icon: "add", isCenter: true },
-      { id: "user", text: "我的", icon: "person", url: "/pages/user/info" }
+      { id: "user", text: "我的", icon: "person", url: "/pages/employee/info" }
     ];
     const tabs = common_vendor.ref([]);
     const showOverlay = common_vendor.ref(false);

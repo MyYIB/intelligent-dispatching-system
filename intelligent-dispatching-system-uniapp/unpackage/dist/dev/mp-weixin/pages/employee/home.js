@@ -13,7 +13,7 @@ const _sfc_main = {
     const orderList = common_vendor.ref([]);
     const loading = common_vendor.ref(false);
     const refreshing = common_vendor.ref(false);
-    const activeTab = common_vendor.ref("pending");
+    const activeTab = common_vendor.ref("assigned");
     const filteredOrderList = common_vendor.computed(() => {
       if (activeTab.value === "pending") {
         return orderList.value.filter(
@@ -50,9 +50,9 @@ const _sfc_main = {
         loading.value = false;
         return;
       }
-      const userInfo = JSON.parse(userInfoStr);
-      common_vendor.index.__f__("log", "at pages/employee/home.vue:120", userInfo);
-      if (!userInfo.employeeId) {
+      const employeeInfoStr = common_vendor.index.getStorageSync("employeeInfo");
+      const employeeInfo = JSON.parse(employeeInfoStr);
+      if (!employeeInfo.employeeId) {
         common_vendor.index.showToast({
           title: "员工ID不存在",
           icon: "none"
@@ -61,7 +61,7 @@ const _sfc_main = {
         return;
       }
       try {
-        const res = await api_orderAPI.getEmployeeOrders(userInfo.employeeId);
+        const res = await api_orderAPI.getEmployeeOrders(employeeInfo.employeeId);
         if (res.status === 200 && res.data) {
           orderList.value = res.data.map((order) => {
             return {
@@ -77,10 +77,10 @@ const _sfc_main = {
           });
         } else {
           orderList.value = [];
-          common_vendor.index.__f__("log", "at pages/employee/home.vue:149", "获取工单列表成功，但没有数据");
+          common_vendor.index.__f__("log", "at pages/employee/home.vue:148", "获取工单列表成功，但没有数据");
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/employee/home.vue:152", "获取工单列表失败", error);
+        common_vendor.index.__f__("error", "at pages/employee/home.vue:151", "获取工单列表失败", error);
         common_vendor.index.showToast({
           title: "网络异常，请稍后重试",
           icon: "none"
@@ -131,7 +131,7 @@ const _sfc_main = {
         i: common_vendor.o(onRefresh),
         j: refreshing.value,
         k: common_vendor.p({
-          role: "employee",
+          role: "technician",
           active: "index"
         })
       });

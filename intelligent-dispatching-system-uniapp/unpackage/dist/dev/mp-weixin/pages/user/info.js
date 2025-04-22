@@ -58,7 +58,6 @@ const _sfc_main = {
               common_vendor.index.removeStorageSync("userInfo");
               isLogin.value = false;
               userInfo.value = null;
-              userRole.value = "customer";
               common_vendor.index.showToast({
                 title: "已退出登录",
                 icon: "success"

@@ -37,13 +37,15 @@ public class LoginController {
                     //使用jwt的情况下，会生成一个jwt token,jwt token里会包含用户的信息
                     loginVO.setToken(UUID.randomUUID().toString());
                     if(user.getRole().equals("technician")){
-
                         QueryWrapper<Employee> employeeQuery=new QueryWrapper<>();
                         employeeQuery.eq("user_id",user.getUserId());
                         Employee employee=employeeService.getOne(employeeQuery);
-                        user.setEmployeeId(employee.getEmployeeId());
-                        System.out.println(employee.getEmployeeId());
+                        loginVO.setEmployee(employee);
+                        loginVO.setUser(user);
+                        loginVO.setRole("technician");
+                        return ServerResponse.createSuccess(loginVO);
                     }
+                    loginVO.setRole("customer");
                     loginVO.setUser(user);
                     return ServerResponse.createSuccess(loginVO);
                 }else {
