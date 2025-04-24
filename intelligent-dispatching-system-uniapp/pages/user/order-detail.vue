@@ -4,10 +4,11 @@
     <view class="map-container">
       <map 
         class="order-map" 
-        :latitude="orderDetail.locationLatitude || 39.909" 
-        :longitude="orderDetail.locationLongitude || 116.397" 
+        :latitude="orderDetail.locationLatitude" 
+        :longitude="orderDetail.locationLongitude" 
         :markers="markers"
         scale="16"
+        show-location
       ></map>
     </view>
     
@@ -83,7 +84,7 @@
     </view>
     
     <!-- 底部操作区 -->
-    <view class="action-bar" v-if="orderDetail.status === 'pending'">
+    <view class="action-bar" v-if="orderDetail.status === 'pending' || 'assigned' || 'in_progress' ">
       <button class="cancel-btn" @click="cancelOrder">取消工单</button>
     </view>
   </view>
@@ -104,11 +105,15 @@ const markers = computed(() => {
   }
   return [{
     id: 1,
-    latitude: orderDetail.value.location_latitude,
-    longitude: orderDetail.value.location_longitude,
+    latitude: orderDetail.value.locationLatitude,
+    longitude: orderDetail.value.locationLongitude,
     iconPath: '/static/images/marker.png',
     width: 30,
-    height: 30
+    height: 30,
+    anchor: {
+      x: 0.5,
+      y: 1.0
+    }
   }];
 });
 
@@ -121,6 +126,7 @@ const fetchOrderDetail = async () => {
   try {
     const res = await getOrderDetail(orderId.value);
     if (res.status === 200) {
+      
       orderDetail.value = res.data || {};
       // 如果有员工ID，可以在这里获取员工信息
     } else {
@@ -247,7 +253,6 @@ const getStatusClass = (status) => {
 
 // 修改：使用 onLoad 钩子正确获取参数
 onLoad((options) => {
-  console.log('页面参数:', options);
   if (options && options.id) {
     orderId.value = options.id;
     fetchOrderDetail();
@@ -288,7 +293,7 @@ onLoad((options) => {
 }
 
 .order-card {
-  margin: -50rpx 30rpx 30rpx;
+  margin: 20rpx 30rpx 30rpx;
   background-color: #fff;
   border-radius: 20rpx;
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);

@@ -13,8 +13,8 @@
       <view class="tab-container">
         <view 
           class="tab-item" 
-          :class="{ active: activeTab === 'pending' }"
-          @click="switchTab('pending')"
+          :class="{ active: activeTab === 'assigned' }"
+          @click="switchTab('assigned')"
         >
           <text class="tab-text">未完成工单</text>
         </view>
@@ -71,7 +71,7 @@
   
   // 根据当前选中的标签过滤工单列表
   const filteredOrderList = computed(() => {
-    if (activeTab.value === 'pending') {
+    if (activeTab.value === 'assigned') {
       // 未完成工单：状态为 pending, assigned, in_progress
       return orderList.value.filter(order => 
         ['pending', 'assigned', 'in_progress'].includes(order.status)
@@ -268,7 +268,7 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  padding-top: 20rpx;
+  padding-top: 50rpx;
 }
 
 .empty-tip {

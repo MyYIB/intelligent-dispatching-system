@@ -32,7 +32,13 @@ const _sfc_main = {
         id: 1,
         latitude: latitude.value,
         longitude: longitude.value,
-        title: location.value
+        title: location.value,
+        width: 30,
+        height: 30,
+        anchor: {
+          x: 0.5,
+          y: 0.5
+        }
       }];
     });
     const minDate = common_vendor.computed(() => {
@@ -79,7 +85,7 @@ const _sfc_main = {
           }
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/user/repair.vue:171", "获取设置失败", err);
+          common_vendor.index.__f__("error", "at pages/user/repair.vue:175", "获取设置失败", err);
           common_vendor.index.showToast({
             title: "获取设置失败",
             icon: "none"
@@ -95,7 +101,7 @@ const _sfc_main = {
           longitude.value = res.longitude;
         },
         fail: (err) => {
-          common_vendor.index.__f__("error", "at pages/user/repair.vue:189", "选择位置失败", err);
+          common_vendor.index.__f__("error", "at pages/user/repair.vue:193", "选择位置失败", err);
           if (err.errMsg.indexOf("cancel") === -1) {
             common_vendor.index.showToast({
               title: "选择位置失败，请检查网络或权限设置",
@@ -130,7 +136,7 @@ const _sfc_main = {
         return;
       }
       const userInfo = JSON.parse(userInfoStr);
-      common_vendor.index.__f__("log", "at pages/user/repair.vue:230", userInfoStr);
+      common_vendor.index.__f__("log", "at pages/user/repair.vue:234", userInfoStr);
       const orderData = {
         userId: userInfo.userId,
         orderType: "nrepair",
@@ -141,7 +147,7 @@ const _sfc_main = {
         locationLongitude: longitude.value,
         deadline: deadline.value ? deadline.value + "T00:00:00" : null
       };
-      common_vendor.index.__f__("log", "at pages/user/repair.vue:242", orderData);
+      common_vendor.index.__f__("log", "at pages/user/repair.vue:246", orderData);
       common_vendor.index.showLoading({
         title: "提交中..."
       });
@@ -189,7 +195,7 @@ const _sfc_main = {
           });
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/user/repair.vue:310", "获取报修类型失败", error);
+        common_vendor.index.__f__("error", "at pages/user/repair.vue:314", "获取报修类型失败", error);
         common_vendor.index.showToast({
           title: "网络异常，请稍后重试",
           icon: "none"

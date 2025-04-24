@@ -23,6 +23,7 @@ const UserForm = reactive({
   address: "",
   skillLevel: "",
   skills: [],
+  status: "available",
 });
 const UserFormRef = ref(null);
 const rules = {
@@ -35,6 +36,12 @@ const rules = {
 const skillsList = ref([]);
 //等级选项
 const levelOptions = ref([1,2,3,4,5,6,7,8,9,10]);
+// 员工状态选项
+const statusOptions = ref([
+  { value: 'available', label: '可分配工作' },
+  { value: 'busy', label: '忙碌' },
+  { value: 'off', label: '下班' }
+]);
 // 保存员工技能
 const employeeSkills = ref({});
 // 地图对话框控制变量和当前选中的位置
@@ -52,7 +59,10 @@ const load = debounce(() => {
         },
       })
       .then((res) => {
-        tableData.value = res.data.data;
+        tableData.value = res.data.data.map(employee => ({
+          ...employee,
+          skills: Array.isArray(employee.skills) ? employee.skills : []
+        }));
         total.value = res.data.total;
       });
 },300);
@@ -108,7 +118,8 @@ const addNewUser = () => {
     email: "",
     address: "",
     skillLevel: "",
-    skills: [], // 强制保持为数组
+    skills: [], 
+    status: "available",
   });
   // 重置表单校验状态（避免上次校验状态保留）
   nextTick(() => {
@@ -119,13 +130,48 @@ const addNewUser = () => {
 // 编辑
 const handleEdit = (row) => {
   ifAdd.value = false;
-  Object.assign(UserForm, row);
-  userDialogForm.value = true;
-  userDialogTitle.value = "编辑员工";
-  // 在编辑时，确保表单不会立即显示错误
-  nextTick(() => {
-    UserFormRef.value?.clearValidate();  // 清除上次编辑的验证错误
-  });
+  
+  // 先获取员工的技能列表
+  request.get(`employee/getEmployeeSkills?employeeId=${row.employeeId}`, {})
+    .then((res) => {
+      if (res.data.status === 200) {
+        // 将技能ID转换为穿梭框需要的格式
+        const skillIds = res.data.data.map(skill => skill.skillId);
+        
+        // 确保技能列表已加载
+        if (skillsList.value.length === 0) {
+          loadSkills().then(() => {
+            // 设置表单数据
+            const formData = {
+              ...row,
+              skills: skillIds || [] // 使用获取到的技能ID列表
+            };
+            Object.assign(UserForm, formData);
+          });
+        } else {
+          // 设置表单数据
+          const formData = {
+            ...row,
+            skills: skillIds || [] // 使用获取到的技能ID列表
+          };
+          Object.assign(UserForm, formData);
+        }
+        
+        userDialogForm.value = true;
+        userDialogTitle.value = "编辑员工";
+        
+        // 在编辑时，确保表单不会立即显示错误
+        nextTick(() => {
+          UserFormRef.value?.clearValidate();  // 清除上次编辑的验证错误
+        });
+      } else {
+        ElMessage.error(res.data.msg || "获取员工技能失败");
+      }
+    })
+    .catch(error => {
+      console.error("获取员工技能出错:", error);
+      ElMessage.error("获取员工技能出错");
+    });
 };
 
 // 删除用户
@@ -274,23 +320,54 @@ const showWorkloadStatus = (row) => {
     return "exception"
 }
 // // 获取技能列表（后端接口）
-const loadSkills = debounce( () => {
-  request
-      .get("employee/getSkillList", {},)
+const loadSkills = () => {
+  return new Promise((resolve) => {
+    request
+      .get("employee/getSkillList", {})
       .then((res) => {
         if (res.data.status === 200) {
           // 将后端获取的技能数据填充到 skillsList
           skillsList.value = res.data.data.map(skill => ({
             key: skill.skillId,
-            label: skill.skillName,  // 假设后端返回字段为 'name'
+            label: skill.skillName,
           }));
+          resolve();
         } else {
           ElMessage.error(res.data.msg);
+          resolve();
         }
+      })
+      .catch(error => {
+        console.error("加载技能列表出错:", error);
+        ElMessage.error("加载技能列表出错");
+        resolve();
       });
-},300);
+  });
+};
+// 获取状态标签
+const getStatusLabel = (status) => {
+  const statusObj = statusOptions.value.find(item => item.value === status);
+  return statusObj ? statusObj.label : '未知状态';
+};
 
-onMounted(load,loadSkills());
+// 获取状态类型（用于标签颜色）
+const getStatusType = (status) => {
+  switch(status) {
+    case 'available':
+      return 'success';
+    case 'busy':
+      return 'warning';
+    case 'off':
+      return 'info';
+    default:
+      return '';
+  }
+};
+
+onMounted(() => {
+  load();
+  loadSkills();
+});
 </script>
 
 <template>
@@ -331,15 +408,14 @@ onMounted(load,loadSkills());
     <el-table :data="tableData" border stripe :header-cell-class-name="headerBg" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
       <el-table-column prop="employeeId" label="ID" width="80" />
-      <el-table-column prop="name" label="员工姓名" width="140" />
+      <el-table-column prop="name" label="员工姓名" width="100" />
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="phone" label="电话" />
       <el-table-column prop="address" label="家庭地址" />
-      <el-table-column prop="skillLevel" label="等级" >
-
+      <el-table-column prop="skillLevel" label="等级" width="180">
         <template #default="{ row }">
           <div style="display: flex; align-items: center;">
-            <span class="levelText">{{ row.skillLevel }}</span>  <!-- 等级文本 -->
+            <span class="level-badge">Lv.{{ row.skillLevel }}</span>  <!-- 等级文本 -->
             <el-progress
                 :stroke-width="25"
                 :text-inside="true"
@@ -377,6 +453,16 @@ onMounted(load,loadSkills());
           >
             <span style="color: #333333">{{row.currentWorkload}}/{{row.maxWorkload}}</span>
           </el-progress>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" width="120">
+        <template #default="{ row }">
+          <el-tag
+            :type="getStatusType(row.status)"
+            effect="light"
+          >
+            {{ getStatusLabel(row.status) }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="200" align="center">
@@ -434,6 +520,16 @@ onMounted(load,loadSkills());
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="员工状态" prop="status">
+      <el-select v-model="UserForm.status" placeholder="请选择员工状态" style="width: 240px">
+        <el-option
+            v-for="item in statusOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+        />
+      </el-select>
+    </el-form-item>
         <el-form-item label="技能集" prop="skills">
           <el-transfer
               v-model="UserForm.skills"
@@ -466,12 +562,17 @@ onMounted(load,loadSkills());
 
 <style scoped>
 
-.levelText {
-  margin-right: 5px;
-  font-family: 'Arial', sans-serif; /* 更改字体 */
-  font-size: 12px; /* 调整字体大小 */
-  font-weight: bold; /* 字体加粗 */
-  color: #4A4A4A; /* 更改文本颜色 */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* 添加文本阴影 */
-}
+.level-badge {
+      min-width: 30px;
+      height: 24px;
+      line-height: 24px;
+      text-align: center;
+      background-color: #409EFF;
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-right: 5px;
+    }
 </style>

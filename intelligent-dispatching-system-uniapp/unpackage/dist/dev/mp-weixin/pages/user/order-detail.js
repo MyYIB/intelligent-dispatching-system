@@ -13,11 +13,15 @@ const _sfc_main = {
       }
       return [{
         id: 1,
-        latitude: orderDetail.value.location_latitude,
-        longitude: orderDetail.value.location_longitude,
+        latitude: orderDetail.value.locationLatitude,
+        longitude: orderDetail.value.locationLongitude,
         iconPath: "/static/images/marker.png",
         width: 30,
-        height: 30
+        height: 30,
+        anchor: {
+          x: 0.5,
+          y: 1
+        }
       }];
     });
     const orderId = common_vendor.ref("");
@@ -34,7 +38,7 @@ const _sfc_main = {
           });
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:133", "获取工单详情失败", error);
+        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:139", "获取工单详情失败", error);
         common_vendor.index.showToast({
           title: "网络异常，请稍后重试",
           icon: "none"
@@ -65,7 +69,7 @@ const _sfc_main = {
                 });
               }
             } catch (error) {
-              common_vendor.index.__f__("error", "at pages/user/order-detail.vue:168", "取消工单失败", error);
+              common_vendor.index.__f__("error", "at pages/user/order-detail.vue:174", "取消工单失败", error);
               common_vendor.index.showToast({
                 title: "网络异常，请稍后重试",
                 icon: "none"
@@ -132,7 +136,6 @@ const _sfc_main = {
       return classMap[status] || "";
     };
     common_vendor.onLoad((options) => {
-      common_vendor.index.__f__("log", "at pages/user/order-detail.vue:250", "页面参数:", options);
       if (options && options.id) {
         orderId.value = options.id;
         fetchOrderDetail();
@@ -148,8 +151,8 @@ const _sfc_main = {
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: orderDetail.value.locationLatitude || 39.909,
-        b: orderDetail.value.locationLongitude || 116.397,
+        a: orderDetail.value.locationLatitude,
+        b: orderDetail.value.locationLongitude,
         c: markers.value,
         d: common_vendor.t(getStatusText(orderDetail.value.status)),
         e: common_vendor.n(getStatusClass(orderDetail.value.status)),
@@ -173,8 +176,8 @@ const _sfc_main = {
       }, orderDetail.value.resolvedAt ? {
         r: common_vendor.t(formatTime(orderDetail.value.resolved_at))
       } : {}) : {}, {
-        s: orderDetail.value.status === "pending"
-      }, orderDetail.value.status === "pending" ? {
+        s: orderDetail.value.status === "pending" || "assigned"
+      }, orderDetail.value.status === "pending" || "assigned" ? {
         t: common_vendor.o(cancelOrder)
       } : {});
     };

@@ -50,8 +50,6 @@
           scale="16"
         ></map>
       </view>
-      
-      
       <!-- 截止日期 -->
       <view class="form-item">
         <text class="form-label">期望完成日期</text>
@@ -106,7 +104,13 @@ const markers = computed(() => {
     id: 1,
     latitude: latitude.value,
     longitude: longitude.value,
-    title: location.value
+    title: location.value,
+    width: 30,
+    height: 30,
+    anchor: {
+      x: 0.5,
+      y: 0.5
+    }
   }];
 });
 

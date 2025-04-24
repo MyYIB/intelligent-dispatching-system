@@ -15,7 +15,7 @@ const _sfc_main = {
     const refreshing = common_vendor.ref(false);
     const activeTab = common_vendor.ref("assigned");
     const filteredOrderList = common_vendor.computed(() => {
-      if (activeTab.value === "pending") {
+      if (activeTab.value === "assigned") {
         return orderList.value.filter(
           (order) => ["pending", "assigned", "in_progress"].includes(order.status)
         );
@@ -109,8 +109,8 @@ const _sfc_main = {
     });
     return (_ctx, _cache) => {
       return common_vendor.e({
-        a: activeTab.value === "pending" ? 1 : "",
-        b: common_vendor.o(($event) => switchTab("pending")),
+        a: activeTab.value === "assigned" ? 1 : "",
+        b: common_vendor.o(($event) => switchTab("assigned")),
         c: activeTab.value === "completed" ? 1 : "",
         d: common_vendor.o(($event) => switchTab("completed")),
         e: filteredOrderList.value.length === 0

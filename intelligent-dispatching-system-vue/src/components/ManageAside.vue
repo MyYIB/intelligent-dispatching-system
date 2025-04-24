@@ -40,9 +40,7 @@
       <el-menu-item v-if="isAdmin" index="/employeeManage">
         员工信息管理
       </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="1-2">
-        派单处理
-      </el-menu-item>
+
       <el-menu-item v-if="isAdmin" index="1-2">
         回访处理
       </el-menu-item>
