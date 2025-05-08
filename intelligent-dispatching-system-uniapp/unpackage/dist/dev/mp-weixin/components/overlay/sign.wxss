@@ -90,5 +90,10 @@
   line-height: 90rpx;
   font-size: 32rpx;
   margin-top: 30rpx;
+}
+.sign-in-btn.data-v-18eaaea1 {
   background-color: #007aff;
+}
+.sign-out-btn.data-v-18eaaea1 {
+  background-color: #ff9500;
 }

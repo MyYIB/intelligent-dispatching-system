@@ -5,7 +5,7 @@ const _sfc_main = {
   __name: "order-detail",
   setup(__props) {
     const orderDetail = common_vendor.ref({});
-    const employeeName = common_vendor.ref("");
+    const employeeDetail = common_vendor.ref({});
     const loading = common_vendor.ref(false);
     const markers = common_vendor.computed(() => {
       if (!orderDetail.value.location_latitude || !orderDetail.value.location_longitude) {
@@ -31,6 +31,13 @@ const _sfc_main = {
         const res = await api_orderAPI.getOrderDetail(orderId.value);
         if (res.status === 200) {
           orderDetail.value = res.data || {};
+          if (orderDetail.status !== "pending") {
+            const orderRes = await api_orderAPI.getOrderEmployeeDetail(orderDetail.value.orderId);
+            if (orderRes.status === 200) {
+              employeeDetail.value = orderRes.data || {};
+              common_vendor.index.__f__("log", "at pages/user/order-detail.vue:141", employeeDetail.value);
+            }
+          }
         } else {
           common_vendor.index.showToast({
             title: res.message || "获取工单详情失败",
@@ -38,7 +45,7 @@ const _sfc_main = {
           });
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:139", "获取工单详情失败", error);
+        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:152", "获取工单详情失败", error);
         common_vendor.index.showToast({
           title: "网络异常，请稍后重试",
           icon: "none"
@@ -69,7 +76,7 @@ const _sfc_main = {
                 });
               }
             } catch (error) {
-              common_vendor.index.__f__("error", "at pages/user/order-detail.vue:174", "取消工单失败", error);
+              common_vendor.index.__f__("error", "at pages/user/order-detail.vue:187", "取消工单失败", error);
               common_vendor.index.showToast({
                 title: "网络异常，请稍后重试",
                 icon: "none"
@@ -168,17 +175,21 @@ const _sfc_main = {
         m: common_vendor.t(orderDetail.value.description || "暂无描述"),
         n: orderDetail.value.status !== "pending"
       }, orderDetail.value.status !== "pending" ? common_vendor.e({
-        o: orderDetail.value.assigned_employee
-      }, orderDetail.value.assigned_employee ? {
-        p: common_vendor.t(employeeName.value || "工号: " + orderDetail.value.assigned_employee)
+        o: employeeDetail.value.name
+      }, employeeDetail.value.name ? {
+        p: common_vendor.t(employeeDetail.value.name || "暂无")
       } : {}, {
-        q: orderDetail.value.resolvedAt
-      }, orderDetail.value.resolvedAt ? {
-        r: common_vendor.t(formatTime(orderDetail.value.resolved_at))
+        q: employeeDetail.value.phone
+      }, employeeDetail.value.phone ? {
+        r: common_vendor.t(employeeDetail.value.phone)
+      } : {}, {
+        s: employeeDetail.value.resolved_at
+      }, employeeDetail.value.resolved_at ? {
+        t: common_vendor.t(formatTime(orderDetail.value.resolved_at) || "未完成")
       } : {}) : {}, {
-        s: orderDetail.value.status === "pending" || "assigned"
-      }, orderDetail.value.status === "pending" || "assigned" ? {
-        t: common_vendor.o(cancelOrder)
+        v: orderDetail.value.status === "pending" || orderDetail.value.status === "assigned" || orderDetail.value.status === "in_progress"
+      }, orderDetail.value.status === "pending" || orderDetail.value.status === "assigned" || orderDetail.value.status === "in_progress" ? {
+        w: common_vendor.o(cancelOrder)
       } : {});
     };
   }

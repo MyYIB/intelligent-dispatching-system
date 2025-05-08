@@ -8,6 +8,7 @@ if (!Math) {
   "./pages/user/repair.js";
   "./pages/user/complaint.js";
   "./pages/user/order-detail.js";
+  "./pages/employee/order-detail.js";
   "./pages/login/Login.js";
   "./pages/employee/home.js";
   "./pages/employee/info.js";

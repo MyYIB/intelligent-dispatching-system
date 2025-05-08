@@ -13,17 +13,21 @@ import lombok.Setter;
  * </p>
  *
  * @author lm
- * @since 2025-04-18
+ * @since 2025-05-07
  */
 @Getter
 @Setter
-@TableName("repar_type")
-public class ReparType implements Serializable {
+@TableName("inventory_use")
+public class InventoryUse implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "repar_type_id", type = IdType.AUTO)
-    private Integer reparTypeId;
+    @TableId(value = "inventory_use_id", type = IdType.AUTO)
+    private Integer inventoryUseId;
 
-    private String reparTypeName;
+    private Integer inventoryId;
+
+    private Integer orderId;
+
+    private Integer num;
 }

@@ -26,12 +26,7 @@
       <el-menu-item v-if="isAdmin" index="/userManage">
         用户信息管理
       </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="/orderManage">
-        报修处理
-      </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="1-2">
-        投诉处理
-      </el-menu-item>
+      
     </el-sub-menu>
     <el-sub-menu index="2">
       <template #title>
@@ -41,19 +36,31 @@
         员工信息管理
       </el-menu-item>
 
-      <el-menu-item v-if="isAdmin" index="1-2">
-        回访处理
-      </el-menu-item>
+      
     </el-sub-menu>
     <el-sub-menu index="3">
       <template #title>
         <span>设备管理</span>
       </template>
-      <el-menu-item v-if="isAdmin" index="1-2">
+      <el-menu-item v-if="isAdmin" index="inventoryManage">
         物料管理
       </el-menu-item>
       <el-menu-item v-if="isAdmin" index="1-2">
         设备维护
+      </el-menu-item>
+    </el-sub-menu>
+    <el-sub-menu index="4">
+      <template #title>
+        <span>工单管理</span>
+      </template>
+      <el-menu-item v-if="isAdmin" index="/orderManage">
+        报修处理
+      </el-menu-item>
+      <el-menu-item v-if="isAdmin" index="1-2">
+        投诉处理
+      </el-menu-item>
+      <el-menu-item v-if="isAdmin" index="1-2">
+        回访处理
       </el-menu-item>
     </el-sub-menu>
   </el-menu>

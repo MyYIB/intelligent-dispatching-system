@@ -71,20 +71,25 @@
           <text class="info-title">处理信息</text>
         </view>
         
-        <view class="info-item" v-if="orderDetail.assigned_employee">
-          <text class="item-label">处理人员</text>
-          <text class="item-value">{{ employeeName || '工号: ' + orderDetail.assigned_employee }}</text>
+        <view class="info-item" v-if="employeeDetail.name">
+          <text class="item-label">员工姓名</text>
+          <text class="item-value">{{ employeeDetail.name || '暂无' }}</text>
         </view>
-        
-        <view class="info-item" v-if="orderDetail.resolvedAt">
+
+        <view class="info-item" v-if="employeeDetail.phone">
+          <text class="item-label">员工电话</text>
+          <text class="item-value">{{ employeeDetail.phone }}</text>
+        </view>
+
+        <view class="info-item" v-if="employeeDetail.resolved_at">
           <text class="item-label">解决时间</text>
-          <text class="item-value">{{ formatTime(orderDetail.resolved_at) }}</text>
+          <text class="item-value">{{ formatTime(orderDetail.resolved_at) || '未完成' }}</text>
         </view>
       </view>
     </view>
     
     <!-- 底部操作区 -->
-    <view class="action-bar" v-if="orderDetail.status === 'pending' || 'assigned' || 'in_progress' ">
+    <view class="action-bar" v-if="orderDetail.status === 'pending' || orderDetail.status ==='assigned' || orderDetail.status ==='in_progress' ">
       <button class="cancel-btn" @click="cancelOrder">取消工单</button>
     </view>
   </view>
@@ -92,12 +97,12 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { getOrderDetail, cancelOrder as apiCancelOrder } from '@/api/orderAPI.js';
+import { getOrderDetail, cancelOrder as apiCancelOrder, getOrderEmployeeDetail } from '@/api/orderAPI.js';
 import { onLoad } from '@dcloudio/uni-app';  // 正确导入 onLoad
 
 // 工单详情数据
 const orderDetail = ref({});
-const employeeName = ref('');
+const employeeDetail = ref({});
 const loading = ref(false);
 const markers = computed(() => {
   if (!orderDetail.value.location_latitude || !orderDetail.value.location_longitude) {
@@ -128,7 +133,15 @@ const fetchOrderDetail = async () => {
     if (res.status === 200) {
       
       orderDetail.value = res.data || {};
-      // 如果有员工ID，可以在这里获取员工信息
+      // 获取员工姓名
+      if(orderDetail.status !== 'pending'){
+        const orderRes = await getOrderEmployeeDetail(orderDetail.value.orderId); 
+        if(orderRes.status === 200){
+          employeeDetail.value = orderRes.data || {};
+          console.log(employeeDetail.value);
+        }
+      }
+      
     } else {
       uni.showToast({
         title: res.message || '获取工单详情失败',

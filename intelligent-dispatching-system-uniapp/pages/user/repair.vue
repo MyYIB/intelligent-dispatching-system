@@ -264,6 +264,7 @@ const submitRepair = () => {
   //   }, 1500);
   // }, 1000);
   createOrder(orderData).then(res => {
+    console.log(res);
     uni.hideLoading();
     if (res.status === 200) {
       uni.showToast({

@@ -36,6 +36,7 @@ public class EmployeeController {
     ISkillsService skillsService;
     @Resource
     IUserService userService;
+
     /***
      * 分页查询,输入页数与每页的个数
      * @param pageNum
@@ -49,9 +50,9 @@ public class EmployeeController {
                                           @RequestParam String phone
     ) {
         Page<Employee> page = new Page<>(pageNum, pageSize);
-        QueryWrapper<Employee> query=new QueryWrapper<>();
-        query.like("name",username).like("phone",phone);
-        IPage<Employee> employeeIPage = employeeService.page(page,query);
+        QueryWrapper<Employee> query = new QueryWrapper<>();
+        query.like("name", username).like("phone", phone);
+        IPage<Employee> employeeIPage = employeeService.page(page, query);
         List<Employee> records = employeeIPage.getRecords();
         // 为每个员工添加地址信息
         for (Employee employee : records) {
@@ -70,7 +71,7 @@ public class EmployeeController {
 
         if (skills == null || skills.isEmpty()) {
             return ServerResponse.createError("查询技能集失败");
-        }else {
+        } else {
             return ServerResponse.createSuccess(skills);
         }
     }
@@ -85,20 +86,20 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/delete")
-    public ServerResponse<Object> deleteOne(@RequestParam int id){
-        if (employeeService.removeById(id)){
+    public ServerResponse<Object> deleteOne(@RequestParam int id) {
+        if (employeeService.removeById(id)) {
             return ServerResponse.createBySuccessMsg("删除成功");
 
-        }else {
+        } else {
             return ServerResponse.createError("删除失败");
         }
     }
 
     @DeleteMapping("/delBatch")
-    public ServerResponse<Object> delBatch(@RequestBody List<Integer> ids){
+    public ServerResponse<Object> delBatch(@RequestBody List<Integer> ids) {
         if (employeeService.removeByIds(ids)) {
             return ServerResponse.createBySuccessMsg("批量删除成功");
-        }else {
+        } else {
             return ServerResponse.createError("批量删除失败");
         }
     }
@@ -124,7 +125,7 @@ public class EmployeeController {
             }
             // 2. 设置员工的用户ID并保存
             employee.setUserId(user.getUserId());
-
+            employee.setLevelPoint(0.0);
             // 保存员工
             boolean employeeSaved = employeeService.save(employee);
             if (!employeeSaved) {
@@ -148,6 +149,7 @@ public class EmployeeController {
             return ServerResponse.createError("新增员工失败: " + e.getMessage());
         }
     }
+
     // 更新员工
     @PostMapping("/updateEmployee")
     public ServerResponse<Object> updateEmployee(@RequestBody Employee employee) {
@@ -207,6 +209,7 @@ public class EmployeeController {
             return ServerResponse.createError("更新员工失败: " + e.getMessage());
         }
     }
+
     /**
      * 获取所有可用的技术员
      */
@@ -214,9 +217,10 @@ public class EmployeeController {
     public ServerResponse<List<Employee>> getAvailableEmployees() {
         QueryWrapper<Employee> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", "available");
-        queryWrapper.apply("current_workload < max_workload");; // 工作负载未达到最大值
+        queryWrapper.apply("current_workload < max_workload");
+        ; // 工作负载未达到最大值
         queryWrapper.orderByAsc("current_workload"); // 按工作负载升序排序
-        
+
         List<Employee> employees = employeeService.list(queryWrapper);
         //获取技术员技能
 //        for (Employee employee: employees) {
@@ -227,5 +231,60 @@ public class EmployeeController {
         } else {
             return ServerResponse.createError("暂无可用技术员");
         }
+    }
+
+    /**
+     * 更新员工位置和状态
+     */
+    @PostMapping("/updateLocation")
+    public ServerResponse<Object> updateEmployeeLocation(@RequestBody Map<String, Object> params) {
+        Integer employeeId = (Integer) params.get("employeeId");
+        String location = (String) params.get("location");
+        Double locationLatitude = Double.parseDouble(params.get("locationLatitude").toString());
+        Double locationLongitude = Double.parseDouble(params.get("locationLongitude").toString());
+        String status = (String) params.get("status");
+
+        // 参数校验
+        if (employeeId == null || location == null || locationLatitude == null ||
+                locationLongitude == null || status == null) {
+            return ServerResponse.createError("参数不完整");
+        }
+
+        // 检查员工是否存在
+        Employee employee = employeeService.getById(employeeId);
+        if (employee == null) {
+            return ServerResponse.createError("员工不存在");
+        }
+
+        // 更新员工位置和状态
+        employee.setLocation(location);
+        employee.setLocationLatitude(locationLatitude);
+        employee.setLocationLongitude(locationLongitude);
+        employee.setStatus(status);
+
+        boolean updated = employeeService.updateById(employee);
+
+        if (updated) {
+            return ServerResponse.createSuccess(employee);
+        } else {
+            return ServerResponse.createError("更新失败");
+        }
+    }
+
+    /**
+     * 获取员工信息
+     */
+    @GetMapping("/info")
+    public ServerResponse<Employee> getEmployeeInfo(@RequestParam Integer employeeId) {
+        if (employeeId == null) {
+            return ServerResponse.createError("员工ID不能为空");
+        }
+
+        Employee employee = employeeService.getById(employeeId);
+        if (employee == null) {
+            return ServerResponse.createError("员工不存在");
+        }
+
+        return ServerResponse.createSuccess(employee);
     }
 }

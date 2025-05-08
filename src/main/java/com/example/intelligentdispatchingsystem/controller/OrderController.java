@@ -40,9 +40,42 @@ public class OrderController {
     public ServerResponse<Object> create(@RequestBody WorkOrders workOrders) {
         workOrders.setPriority("med");
         if(workOrdersService.save(workOrders)){
-            return ServerResponse.createBySuccessMsg("创建成功");
-        }else{
+            // 创建工单成功后，尝试智能分配技术员
+            ServerResponse<Object> assignResponse = autoAssignEmployee(workOrders.getOrderId());
+            if(assignResponse.isSuccess()) {
+                return ServerResponse.createBySuccessMsg("创建成功并已自动分配技术员");
+            } else {
+                return ServerResponse.createBySuccessMsg("创建成功，但未找到合适的技术员自动分配");
+            }
+        } else {
             return ServerResponse.createError("创建失败");
+        }
+    }
+    
+    // 智能派单方法
+    private ServerResponse<Object> autoAssignEmployee(Integer orderId) {
+        // 获取工单详情
+        WorkOrders workOrder = workOrdersService.getById(orderId);
+        if (workOrder == null) {
+            return ServerResponse.createError("工单不存在");
+        }
+        
+        // 调用智能派单服务
+        Integer assignedEmployeeId = workOrdersService.intelligentAssignOrder(workOrder);
+        
+        if (assignedEmployeeId != null) {
+            // 如果找到合适的技术员，执行分配
+            boolean success = workOrdersService.assignOrderToEmployee(orderId, assignedEmployeeId);
+            if (success) {
+                System.out.println("1");
+                return ServerResponse.createBySuccessMsg("自动分配技术员成功");
+            } else {
+                System.out.println("2");
+                return ServerResponse.createError("自动分配技术员失败");
+            }
+        } else {
+            System.out.println("3");
+            return ServerResponse.createError("未找到合适的技术员");
         }
     }
     
@@ -247,6 +280,24 @@ public class OrderController {
             return ServerResponse.createSuccess(list);
         } else {
             return ServerResponse.createBySuccessMsg("暂无待处理工单");
+        }
+    }
+    @GetMapping("/getDispatchEmployee")
+    public ServerResponse<Employee> getDispatchEmployee(@RequestParam Integer orderId) {
+        Employee employee = dispatchRecordsService.getDispatchEmployeesByOrderId(orderId);
+        if(employee == null) {
+            return ServerResponse.createError("未查询到分配员工");
+        }else {
+            return ServerResponse.createSuccess(employee);
+        }
+    }
+    @GetMapping("getUser")
+    public ServerResponse<User> getUser(@RequestParam Integer orderId) {
+        User user = workOrdersService.getUserByOrderId(orderId);
+        if(user == null) {
+            return ServerResponse.createError("未查询到工单用户信息");
+        }else {
+            return ServerResponse.createSuccess(user);
         }
     }
 }

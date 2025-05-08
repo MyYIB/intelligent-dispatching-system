@@ -152,6 +152,7 @@ const _sfc_main = {
         title: "提交中..."
       });
       api_orderAPI.createOrder(orderData).then((res) => {
+        common_vendor.index.__f__("log", "at pages/user/repair.vue:267", res);
         common_vendor.index.hideLoading();
         if (res.status === 200) {
           common_vendor.index.showToast({
@@ -195,7 +196,7 @@ const _sfc_main = {
           });
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/user/repair.vue:314", "获取报修类型失败", error);
+        common_vendor.index.__f__("error", "at pages/user/repair.vue:315", "获取报修类型失败", error);
         common_vendor.index.showToast({
           title: "网络异常，请稍后重试",
           icon: "none"

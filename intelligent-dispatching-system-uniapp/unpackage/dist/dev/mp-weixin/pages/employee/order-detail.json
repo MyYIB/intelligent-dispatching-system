@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "工单详情",
+  "navigationStyle": "default",
+  "backgroundColor": "#f5f7fa",
+  "usingComponents": {
+    "uni-icons": "../../node-modules/@dcloudio/uni-ui/lib/uni-icons/uni-icons",
+    "uni-popup": "../../node-modules/@dcloudio/uni-ui/lib/uni-popup/uni-popup"
+  }
+}

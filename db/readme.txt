@@ -34,10 +34,11 @@ item_name：varchar(100) 备件名称
 quantity：int 库存数量
 last_updated：timestamp 最后更新时间
 备料使用表(inventory_use)
-inventory_use_id：
-inventory_id
-order_id
-num
+inventory_use_id：int 备料使用id
+inventory_id：int 备料id
+order_id：int 工单id
+num: int 使用数量
+created_at:timestamp 使用时间
 工单表 (work_orders)
 order_id：int 工单ID（主键，自增）
 user_id：int 用户ID（外键，关联users）
