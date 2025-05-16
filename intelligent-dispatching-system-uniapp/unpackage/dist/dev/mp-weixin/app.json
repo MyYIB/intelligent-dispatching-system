@@ -6,6 +6,7 @@
     "pages/user/repair",
     "pages/user/complaint",
     "pages/user/order-detail",
+    "pages/employee/order-detail",
     "pages/login/Login",
     "pages/employee/home",
     "pages/employee/info",
@@ -18,7 +19,8 @@
     "backgroundColor": "#F8F8F8"
   },
   "requiredPrivateInfos": [
-    "chooseLocation"
+    "chooseLocation",
+    "getLocation"
   ],
   "permission": {
     "scope.userLocation": {

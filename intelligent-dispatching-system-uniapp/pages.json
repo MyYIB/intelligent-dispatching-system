@@ -44,6 +44,14 @@
 			}
 		},
 		{
+			"path": "pages/employee/order-detail",
+			"style": {
+				"navigationBarTitleText": "工单详情",
+				"navigationStyle": "default", 
+				"backgroundColor": "#f5f7fa"
+			}
+		},
+		{
 			"path": "pages/login/Login",
 			"style": {
 				"navigationBarTitleText": "登录/注册"

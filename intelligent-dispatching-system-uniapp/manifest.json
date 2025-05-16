@@ -55,7 +55,8 @@
             "urlCheck" : false
         },
         "requiredPrivateInfos": [
-            "chooseLocation"
+            "chooseLocation",
+            "getLocation"
         ],
         "usingComponents" : true,
         "permission" : {

@@ -93,7 +93,7 @@
   /* 留出底部安全区空间，避免被底部导航遮挡 */
   box-sizing: border-box;
 }
-.order-list.data-v-08871800 {
+.order-list.data-v-08871800, .maintenance-list.data-v-08871800 {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
@@ -123,4 +123,180 @@
   right: 0;
   z-index: 100;
   background: #fff;
+}
+
+/* 设备维护卡片样式 */
+.maintenance-card.data-v-08871800 {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+.card-header.data-v-08871800 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.equipment-name.data-v-08871800 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.status-tag.data-v-08871800 {
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+.status-pending.data-v-08871800 {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+.status-in-progress.data-v-08871800 {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+.status-completed.data-v-08871800 {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+.card-content.data-v-08871800 {
+  margin-bottom: 20rpx;
+}
+.info-row.data-v-08871800 {
+  display: flex;
+  margin-bottom: 10rpx;
+}
+.info-label.data-v-08871800 {
+  width: 160rpx;
+  color: #666;
+  font-size: 28rpx;
+}
+.info-value.data-v-08871800 {
+  flex: 1;
+  color: #333;
+  font-size: 28rpx;
+}
+.details-row.data-v-08871800 {
+  align-items: flex-start;
+}
+.details-text.data-v-08871800 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-footer.data-v-08871800 {
+  display: flex;
+  justify-content: flex-end;
+}
+.action-btn.data-v-08871800 {
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  margin-left: 20rpx;
+}
+.start-btn.data-v-08871800 {
+  background-color: #1890ff;
+  color: #fff;
+}
+.complete-btn.data-v-08871800 {
+  background-color: #52c41a;
+  color: #fff;
+}
+.view-btn.data-v-08871800 {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+/* 添加设备维护按钮 */
+.add-maintenance.data-v-08871800 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-top: 30rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  color: #007aff;
+  font-size: 28rpx;
+}
+.add-maintenance uni-icons.data-v-08871800 {
+  margin-right: 10rpx;
+}
+
+/* 弹窗样式 */
+.popup-content.data-v-08871800 {
+  width: 650rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+}
+.popup-title.data-v-08871800 {
+  font-size: 32rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+.form-item.data-v-08871800 {
+  margin-bottom: 20rpx;
+}
+.form-label.data-v-08871800 {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+.form-input.data-v-08871800, .date-picker.data-v-08871800 {
+  width: 100%;
+  height: 80rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+.picker-value.data-v-08871800 {
+  height: 80rpx;
+  line-height: 80rpx;
+  color: #333;
+}
+.form-textarea.data-v-08871800 {
+  width: 100%;
+  height: 200rpx;
+  background-color: #f5f5f5;
+  border-radius: 8rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+.textarea-counter.data-v-08871800 {
+  text-align: right;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+.popup-buttons.data-v-08871800 {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30rpx;
+}
+.cancel-btn.data-v-08871800, .confirm-btn.data-v-08871800 {
+  width: 45%;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+.cancel-btn.data-v-08871800 {
+  background-color: #f5f5f5;
+  color: #666;
+}
+.confirm-btn.data-v-08871800 {
+  background-color: #007aff;
+  color: #fff;
 }

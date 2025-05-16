@@ -1,6 +1,6 @@
 package com.example.intelligentdispatchingsystem.mapper;
 
-import com.example.intelligentdispatchingsystem.entity.info.ReparType;
+import com.example.intelligentdispatchingsystem.entity.info.RepareType;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2025-04-18
  */
 @Mapper
-public interface ReparTypeMapper extends BaseMapper<ReparType> {
+public interface ReparTypeMapper extends BaseMapper<RepareType> {
 
 }

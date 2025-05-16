@@ -34,10 +34,11 @@ item_name：varchar(100) 备件名称
 quantity：int 库存数量
 last_updated：timestamp 最后更新时间
 备料使用表(inventory_use)
-inventory_use_id：
-inventory_id
-order_id
-num
+inventory_use_id：int 备料使用id
+inventory_id：int 备料id
+order_id：int 工单id
+num: int 使用数量
+created_at:timestamp 使用时间
 工单表 (work_orders)
 order_id：int 工单ID（主键，自增）
 user_id：int 用户ID（外键，关联users）
@@ -58,19 +59,26 @@ order_id：int 工单ID（外键，关联work_orders）
 employee_id：int 员工ID（外键，关联employees）
 dispatch_time：timestamp 派单时间
 completion_time：timestamp 完成时间
-
+智能派单员工匹配分数表
+assignment_id:int 匹配ID
+order_id:int 工单ID（外键，关联work_orders）
+assigned_employee：int 员工ID（外键，关联employees）
+matching_score:double 匹配分数
+assigned_at:timestamp 生成时间
 回访记录表 （feedback_records）
-feedback_id：int
-order_id：
-employee_id：
-feedback_state：
-satisfaction_score：
-feedback_time：
+feedback_id：int 回访记录ID
+order_id：int 工单ID（外键，关联work_orders）
+employee_id：int 员工ID（外键，关联employees）
+feedback_state：enum（completed已完成回访，uncompleted为未完成回访，unrated用户未评分）
+satisfaction_score：int 用户评分
+feedback_time：timestrap 完成回访时间
+need_time：timestamp 待回访时间
 设备维护表 (equipment_maintenance)
-maintenance_id：维护记录ID（主键，自增）
-equipment_name：设备名称
-maintenance_date：维护日期
-details：维护详情
+maintenance_id：int 维护记录ID（主键，自增）
+equipment_name：varchar(100) 设备名称
+maintenance_date：timestamp 维护日期
+details：text 维护详情
+employee_id:int 员工ID（外键，关联employees）
 数据分析记录 (reports)
 report_id：报表ID（主键，自增）
 report_type：报表类型（performance=性能分析，inventory=库存分析，complaints=投诉分析）

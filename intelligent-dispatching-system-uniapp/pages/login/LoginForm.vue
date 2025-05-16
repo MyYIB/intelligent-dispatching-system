@@ -28,15 +28,7 @@ const handleLogin = async () => {
     return;
   }
   
-  // 验证手机号格式
-  const phoneReg = /^1[3-9]\d{9}$/;
-  if (!phoneReg.test(loginForm.phone)) {
-    uni.showToast({
-      title: '请输入正确的手机号',
-      icon: 'none'
-    });
-    return;
-  }
+  
   
   loading.value = true;
   

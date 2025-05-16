@@ -2,7 +2,7 @@
 import {ref, onMounted, reactive, nextTick} from "vue";
 import request from "@/utils/request";
 import { ElNotification, ElMessage } from "element-plus";
-import { CirclePlus, Edit, Remove,Phone,Search,Location,Upload,Download } from "@element-plus/icons-vue";
+import { CirclePlus, Edit, Remove,Phone,Search,Location } from "@element-plus/icons-vue";
 import { debounce } from 'lodash-es';
 // 响应式数据
 const userDialogForm = ref(false); // 新增用户的表单
@@ -31,7 +31,6 @@ const rules = {
   email: [{ required: true, message: "请输入用户邮箱", trigger: "blur" }],
   address: [{ required: true, message: "请输入用户地址", trigger: "blur" }],
 };
-const baseURL =  "http://localhost:8081";
 
 // 加载数据
 const load = debounce(() => {
@@ -150,15 +149,7 @@ const delBatch = () => {
   });
 };
 
-//导入文件
-const handleExcelImportSuccess = () =>{
-  ElMessage.success("导入文件成功")
-  load();
-}
-//导出文件
-const exportExcel = () =>{
-  window.open(`${baseURL}/user/export`);
-}
+
 onMounted(load);
 </script>
 
@@ -197,16 +188,7 @@ onMounted(load);
           <el-button type="danger">批量删除 <el-icon><Remove /></el-icon></el-button>
         </template>
       </el-popconfirm>
-      <el-upload
-          :action='`${baseURL}/user/import`'
-          :show-file-list="false"
-          accept="xlsx"
-          :on-success="handleExcelImportSuccess"
-          style="display: inline-block"
-      >
-        <el-button type="primary" class="ml-5">导入 <el-icon><Download /></el-icon></el-button>
-      </el-upload>
-      <el-button type="primary" @click="exportExcel" class="ml-5">导出 <el-icon><Upload /></el-icon></el-button>
+      
     </div>
 
     <!-- 表格 -->

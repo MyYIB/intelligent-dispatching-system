@@ -33,14 +33,6 @@ const _sfc_main = {
         });
         return;
       }
-      const phoneReg = /^1[3-9]\d{9}$/;
-      if (!phoneReg.test(loginForm.phone)) {
-        common_vendor.index.showToast({
-          title: "请输入正确的手机号",
-          icon: "none"
-        });
-        return;
-      }
       loading.value = true;
       try {
         const res = await api_userAPI.login({
@@ -88,7 +80,7 @@ const _sfc_main = {
           title: "网络错误，请稍后重试",
           icon: "none"
         });
-        common_vendor.index.__f__("error", "at pages/login/LoginForm.vue:97", err);
+        common_vendor.index.__f__("error", "at pages/login/LoginForm.vue:89", err);
       } finally {
         loading.value = false;
       }

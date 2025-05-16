@@ -102,9 +102,17 @@ const closeOverlay = () => {
   showOverlay.value = false;
 };
 
-// 处理签到/报修成功
-const handleSuccess = () => {
-  // 可以在这里添加额外的处理逻辑
+// 处理成功回调
+const handleSuccess = (data) => {
+  // 如果是员工签到/签退成功，刷新页面
+  if (data && (data.status === 'available' || data.status === 'off')) {
+    // 刷新当前页面
+    const pages = getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    if (currentPage && currentPage.onLoad) {
+      currentPage.onLoad(currentPage.options || {});
+    }
+  }
 };
 </script>
 

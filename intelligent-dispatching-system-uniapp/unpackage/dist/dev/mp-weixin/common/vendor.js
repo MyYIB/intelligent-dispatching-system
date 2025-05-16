@@ -5209,6 +5209,10 @@ function vFor(source, renderItem) {
   }
   return ret;
 }
+function setRef(ref2, id, opts = {}) {
+  const { $templateRefs } = getCurrentInstance();
+  $templateRefs.push({ i: id, r: ref2, k: opts.k, f: opts.f });
+}
 const o$1 = (value, key) => vOn(value, key);
 const f$1 = (source, renderItem) => vFor(source, renderItem);
 const s$1 = (value) => stringifyStyle(value);
@@ -5216,6 +5220,7 @@ const e$1 = (target, ...sources) => extend(target, ...sources);
 const n$1 = (value) => normalizeClass(value);
 const t$1 = (val) => toDisplayString(val);
 const p$1 = (props) => renderProps(props);
+const sr = (ref2, id, opts) => setRef(ref2, id, opts);
 function createApp$1(rootComponent, rootProps = null) {
   rootComponent && (rootComponent.mpType = "app");
   return createVueApp(rootComponent, rootProps).use(plugin);
@@ -6117,9 +6122,9 @@ function populateParameters(fromRes, toRes) {
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
-    uniCompileVersion: "4.55",
-    uniCompilerVersion: "4.55",
-    uniRuntimeVersion: "4.55",
+    uniCompileVersion: "4.57",
+    uniCompilerVersion: "4.57",
+    uniRuntimeVersion: "4.57",
     uniPlatform: "mp-weixin",
     deviceBrand,
     deviceModel: model,
@@ -6268,9 +6273,9 @@ const getAppBaseInfo = {
       appLanguage: getAppLanguage(hostLanguage),
       isUniAppX: false,
       uniPlatform: "mp-weixin",
-      uniCompileVersion: "4.55",
-      uniCompilerVersion: "4.55",
-      uniRuntimeVersion: "4.55"
+      uniCompileVersion: "4.57",
+      uniCompilerVersion: "4.57",
+      uniRuntimeVersion: "4.57"
     };
     extend(toRes, parameters);
   }
@@ -6977,9 +6982,9 @@ function initOnError() {
   };
 }
 function initRuntimeSocketService() {
-  const hosts = "172.22.20.171,192.168.56.1,127.0.0.1,172.18.0.1";
+  const hosts = "172.20.10.2,127.0.0.1";
   const port = "8090";
-  const id = "mp-weixin_gPZ7Ly";
+  const id = "mp-weixin_hUaN5P";
   const lazy = typeof swan !== "undefined";
   let restoreError = lazy ? () => {
   } : initOnError();
@@ -7963,6 +7968,14 @@ const pages = [
     }
   },
   {
+    path: "pages/employee/order-detail",
+    style: {
+      navigationBarTitleText: "工单详情",
+      navigationStyle: "default",
+      backgroundColor: "#f5f7fa"
+    }
+  },
+  {
     path: "pages/login/Login",
     style: {
       navigationBarTitleText: "登录/注册"
@@ -8298,7 +8311,7 @@ class v {
 function I(e2) {
   return e2 && "string" == typeof e2 ? JSON.parse(e2) : e2;
 }
-const S = true, b = "mp-weixin", T = I(define_process_env_UNI_SECURE_NETWORK_CONFIG_default), A = b, P = I('{"address":["127.0.0.1","172.22.20.171","192.168.56.1","172.18.0.1"],"servePort":7001,"debugPort":9001,"initialLaunchType":"local","skipFiles":["<node_internals>/**","C:/software/codesoftware/HBuilderX/plugins/unicloud/**/*.js"]}'), C = I('[{"provider":"aliyun","spaceName":"cong","spaceId":"mp-3f855c3d-c4ff-4ce7-a049-38dbdea41d7c","clientSecret":"WiXfZTzVzCHkjPyn5iC+rA==","endpoint":"https://api.next.bspapp.com"}]') || [];
+const S = true, b = "mp-weixin", T = I(define_process_env_UNI_SECURE_NETWORK_CONFIG_default), A = b, P = I('{"address":["127.0.0.1","172.20.10.2"],"servePort":7000,"debugPort":9000,"initialLaunchType":"local","skipFiles":["<node_internals>/**","D:/codelib/HBuilderX/plugins/unicloud/**/*.js"]}'), C = I('[{"provider":"aliyun","spaceName":"cong","spaceId":"mp-3f855c3d-c4ff-4ce7-a049-38dbdea41d7c","clientSecret":"WiXfZTzVzCHkjPyn5iC+rA==","endpoint":"https://api.next.bspapp.com"}]') || [];
 let O = "";
 try {
   O = "__UNI__F0B072F";
@@ -11499,8 +11512,121 @@ const fontData = [
     "unicode": ""
   }
 ];
+class MPAnimation {
+  constructor(options, _this) {
+    this.options = options;
+    this.animation = index.createAnimation({
+      ...options
+    });
+    this.currentStepAnimates = {};
+    this.next = 0;
+    this.$ = _this;
+  }
+  _nvuePushAnimates(type, args) {
+    let aniObj = this.currentStepAnimates[this.next];
+    let styles = {};
+    if (!aniObj) {
+      styles = {
+        styles: {},
+        config: {}
+      };
+    } else {
+      styles = aniObj;
+    }
+    if (animateTypes1.includes(type)) {
+      if (!styles.styles.transform) {
+        styles.styles.transform = "";
+      }
+      let unit = "";
+      if (type === "rotate") {
+        unit = "deg";
+      }
+      styles.styles.transform += `${type}(${args + unit}) `;
+    } else {
+      styles.styles[type] = `${args}`;
+    }
+    this.currentStepAnimates[this.next] = styles;
+  }
+  _animateRun(styles = {}, config = {}) {
+    let ref2 = this.$.$refs["ani"].ref;
+    if (!ref2)
+      return;
+    return new Promise((resolve2, reject) => {
+      nvueAnimation.transition(ref2, {
+        styles,
+        ...config
+      }, (res) => {
+        resolve2();
+      });
+    });
+  }
+  _nvueNextAnimate(animates, step = 0, fn) {
+    let obj = animates[step];
+    if (obj) {
+      let {
+        styles,
+        config
+      } = obj;
+      this._animateRun(styles, config).then(() => {
+        step += 1;
+        this._nvueNextAnimate(animates, step, fn);
+      });
+    } else {
+      this.currentStepAnimates = {};
+      typeof fn === "function" && fn();
+      this.isEnd = true;
+    }
+  }
+  step(config = {}) {
+    this.animation.step(config);
+    return this;
+  }
+  run(fn) {
+    this.$.animationData = this.animation.export();
+    this.$.timer = setTimeout(() => {
+      typeof fn === "function" && fn();
+    }, this.$.durationTime);
+  }
+}
+const animateTypes1 = [
+  "matrix",
+  "matrix3d",
+  "rotate",
+  "rotate3d",
+  "rotateX",
+  "rotateY",
+  "rotateZ",
+  "scale",
+  "scale3d",
+  "scaleX",
+  "scaleY",
+  "scaleZ",
+  "skew",
+  "skewX",
+  "skewY",
+  "translate",
+  "translate3d",
+  "translateX",
+  "translateY",
+  "translateZ"
+];
+const animateTypes2 = ["opacity", "backgroundColor"];
+const animateTypes3 = ["width", "height", "left", "right", "top", "bottom"];
+animateTypes1.concat(animateTypes2, animateTypes3).forEach((type) => {
+  MPAnimation.prototype[type] = function(...args) {
+    this.animation[type](...args);
+    return this;
+  };
+});
+function createAnimation(option, _this) {
+  if (!_this)
+    return;
+  clearTimeout(_this.timer);
+  return new MPAnimation(option, _this);
+}
 exports._export_sfc = _export_sfc;
 exports.computed = computed;
+exports.createAnimation = createAnimation;
 exports.createSSRApp = createSSRApp;
 exports.e = e$1;
 exports.f = f$1;
@@ -11517,5 +11643,6 @@ exports.reactive = reactive;
 exports.ref = ref;
 exports.resolveComponent = resolveComponent;
 exports.s = s$1;
+exports.sr = sr;
 exports.t = t$1;
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map

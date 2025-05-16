@@ -71,34 +71,119 @@
           <text class="info-title">处理信息</text>
         </view>
         
-        <view class="info-item" v-if="orderDetail.assigned_employee">
-          <text class="item-label">处理人员</text>
-          <text class="item-value">{{ employeeName || '工号: ' + orderDetail.assigned_employee }}</text>
+        <view class="info-item" v-if="employeeDetail.name">
+          <text class="item-label">员工姓名</text>
+          <text class="item-value">{{ employeeDetail.name || '暂无' }}</text>
+        </view>
+
+        <view class="info-item" v-if="employeeDetail.phone">
+          <text class="item-label">员工电话</text>
+          <text class="item-value">{{ employeeDetail.phone }}</text>
+        </view>
+
+        <view class="info-item" v-if="employeeDetail.resolved_at">
+          <text class="item-label">解决时间</text>
+          <text class="item-value">{{ formatTime(orderDetail.resolved_at) || '未完成' }}</text>
+        </view>
+      </view>
+      
+      <!-- 回访信息 - 仅在已完成状态显示 -->
+      <view class="info-section" v-if="orderDetail.status === 'completed'">
+        <view class="info-header">
+          <text class="info-title">回访信息</text>
         </view>
         
-        <view class="info-item" v-if="orderDetail.resolvedAt">
-          <text class="item-label">解决时间</text>
-          <text class="item-value">{{ formatTime(orderDetail.resolved_at) }}</text>
+        <view v-if="!feedbackInfo" class="empty-data">
+          <text>暂未进行回访</text>
+        </view>
+        
+        <view v-else>
+          <view class="info-item">
+            <text class="item-label">回访状态</text>
+            <text class="item-value" :class="getFeedbackStateClass(feedbackInfo.feedbackState)">
+              {{ getFeedbackStateText(feedbackInfo.feedbackState) }}
+            </text>
+          </view>
+          
+          <view class="info-item" v-if="feedbackInfo.feedbackState === 'completed'">
+            <text class="item-label">满意度评分</text>
+            <view class="satisfaction-score">
+              <uni-rate :value="feedbackInfo.satisfactionScore || 0" :size="18" :readonly="true" />
+              <text class="score-text">{{ feedbackInfo.satisfactionScore || 0 }}分</text>
+            </view>
+          </view>
+          <view class="info-item" v-if="feedbackInfo.needTime">
+            <text class="item-label">回访时间</text>
+            <text class="item-value">{{ formatTime(feedbackInfo.needTime) }}</text>
+          </view>
+          <view class="info-item" v-if="feedbackInfo.feedbackTime">
+            <text class="item-label">完成回访时间</text>
+            <text class="item-value">{{ formatTime(feedbackInfo.feedbackTime) }}</text>
+          </view>
         </view>
       </view>
     </view>
     
     <!-- 底部操作区 -->
-    <view class="action-bar" v-if="orderDetail.status === 'pending' || 'assigned' || 'in_progress' ">
-      <button class="cancel-btn" @click="cancelOrder">取消工单</button>
+    <view class="action-bar">
+      <button 
+        class="cancel-btn" 
+        @click="cancelOrder"
+        v-if="orderDetail.status === 'pending' || orderDetail.status ==='assigned' || orderDetail.status ==='in_progress'"
+      >
+        取消工单
+      </button>
+      
+      <button 
+        class="rate-btn" 
+        @click="openRatePopup"
+        v-if="orderDetail.status === 'completed' && feedbackInfo && feedbackInfo.feedbackState === 'unrated'"
+      >
+        评价服务
+      </button>
     </view>
+    
+    <!-- 评分弹窗 -->
+    <uni-popup ref="ratePopup" type="center">
+      <view class="rate-popup">
+        <view class="popup-header">
+          <text class="popup-title">服务评价</text>
+          <uni-icons type="close" size="20" color="#999" @click="closeRatePopup"></uni-icons>
+        </view>
+        
+        <view class="popup-content">
+          <view class="rate-form">
+            <view class="form-item">
+              <text class="form-label">满意度评分</text>
+              <uni-rate v-model="rateForm.satisfaction_score" :size="24" />
+            </view>
+          </view>
+        </view>
+        
+        <view class="popup-footer">
+          <button class="cancel-btn-small" @click="closeRatePopup">取消</button>
+          <button class="confirm-btn" @click="submitRating">提交评价</button>
+        </view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { getOrderDetail, cancelOrder as apiCancelOrder } from '@/api/orderAPI.js';
+import { getOrderDetail, cancelOrder as apiCancelOrder, getOrderEmployeeDetail, getFeedbackByOrderId, submitUserRating } from '@/api/orderAPI.js';
 import { onLoad } from '@dcloudio/uni-app';  // 正确导入 onLoad
 
 // 工单详情数据
 const orderDetail = ref({});
-const employeeName = ref('');
+const employeeDetail = ref({});
 const loading = ref(false);
+const feedbackInfo = ref(null);
+const ratePopup = ref(null);
+const rateForm = ref({
+  satisfaction_score: 5,
+});
+
 const markers = computed(() => {
   if (!orderDetail.value.location_latitude || !orderDetail.value.location_longitude) {
     return [];
@@ -128,7 +213,20 @@ const fetchOrderDetail = async () => {
     if (res.status === 200) {
       
       orderDetail.value = res.data || {};
-      // 如果有员工ID，可以在这里获取员工信息
+      // 获取员工姓名
+      if(orderDetail.value.status !== 'pending'){
+        const orderRes = await getOrderEmployeeDetail(orderDetail.value.orderId); 
+        if(orderRes.status === 200){
+          employeeDetail.value = orderRes.data || {};
+          console.log(employeeDetail.value);
+        }
+      }
+      
+      // 如果工单状态是已完成，获取回访信息
+      if(orderDetail.value.status === 'completed'){
+        await fetchFeedbackInfo();
+      }
+      
     } else {
       uni.showToast({
         title: res.message || '获取工单详情失败',
@@ -144,6 +242,111 @@ const fetchOrderDetail = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+// 获取回访信息
+const fetchFeedbackInfo = async () => {
+  try {
+    const res = await getFeedbackByOrderId(orderId.value);
+    if (res.status === 200) {
+      feedbackInfo.value = res.data;
+    } else {
+      feedbackInfo.value = null;
+    }
+  } catch (error) {
+    console.error('获取回访信息失败', error);
+    feedbackInfo.value = null;
+  }
+};
+
+// 打开评分弹窗
+const openRatePopup = () => {
+  // 重置表单
+  rateForm.value = {
+    satisfaction_score: 5,
+  };
+  
+  ratePopup.value.open();
+};
+
+// 关闭评分弹窗
+const closeRatePopup = () => {
+  ratePopup.value.close();
+};
+
+// 提交评分
+const submitRating = async () => {
+  if (rateForm.value.satisfaction_score < 1) {
+    uni.showToast({
+      title: '请至少选择1星评分',
+      icon: 'none'
+    });
+    return;
+  }
+  
+  loading.value = true;
+  
+  try {
+    const userInfoStr = uni.getStorageSync('userInfo');
+    if (!userInfoStr) {
+      throw new Error('请先登录');
+    }
+    
+    const userInfo = JSON.parse(userInfoStr);
+    
+    const ratingData = {
+      feedback_id: feedbackInfo.value.feedbackId,
+      order_id: parseInt(orderId.value),
+      user_id: userInfo.userId,
+      satisfaction_score: rateForm.value.satisfaction_score,
+      rating_time: new Date().toISOString()
+    };
+    
+    const res = await submitUserRating(ratingData);
+    
+    if (res.status === 200) {
+      uni.showToast({
+        title: '评价已提交',
+        icon: 'success'
+      });
+      
+      // 关闭弹窗
+      closeRatePopup();
+      
+      // 刷新回访信息
+      await fetchFeedbackInfo();
+    } else {
+      throw new Error(res.msg || '提交评价失败');
+    }
+  } catch (error) {
+    console.error('提交评价失败', error);
+    uni.showToast({
+      title: error.message || '网络异常，请稍后重试',
+      icon: 'none'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 获取回访状态文本
+const getFeedbackStateText = (state) => {
+  const stateMap = {
+    'uncompleted': '待回访',
+    'completed': '已回访',
+    'unrated': '待评价'
+  };
+  return stateMap[state] || '未知状态';
+};
+
+// 获取回访状态样式类
+const getFeedbackStateClass = (state) => {
+  const classMap = {
+    'uncompleted': 'state-pending',
+    'completed': 'state-completed',
+    'unrated': 'state-unrated'
+  };
+  return classMap[state] || '';
 };
 
 // 取消工单
@@ -430,5 +633,144 @@ onLoad((options) => {
   &:active {
     background-color: rgba(255, 77, 79, 0.05);
   }
+}
+/* 回访状态样式 */
+.state-pending {
+  color: #fa8c16;
+}
+
+.state-in-progress {
+  color: #1890ff;
+}
+
+.state-completed {
+  color: #52c41a;
+}
+
+.state-unrated {
+  color: #722ed1;
+}
+
+/* 满意度评分样式 */
+.satisfaction-score {
+  display: flex;
+  align-items: center;
+}
+
+.score-text {
+  margin-left: 10rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 空数据提示 */
+.empty-data {
+  padding: 30rpx 0;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 评价按钮样式 */
+.rate-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #722ed1;
+  color: #fff;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  transition: all 0.3s;
+  
+  &:active {
+    background-color: #5b21b6;
+  }
+}
+
+/* 评分弹窗样式 */
+.rate-popup {
+  width: 650rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.popup-header {
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #eee;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.popup-content {
+  padding: 30rpx;
+}
+
+.rate-form {
+  padding: 20rpx 0;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.rate-textarea {
+  width: 100%;
+  height: 200rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.textarea-counter {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+  display: block;
+  margin-top: 10rpx;
+}
+
+.popup-footer {
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1rpx solid #eee;
+}
+
+.cancel-btn-small {
+  width: 45%;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #f5f5f5;
+  color: #666;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+.confirm-btn {
+  width: 45%;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #722ed1;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 28rpx;
 }
 </style>

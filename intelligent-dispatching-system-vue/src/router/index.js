@@ -10,14 +10,10 @@ const routes = [
             { path: 'userManage', name: '用户管理', component: () => import('../views/adminView/UserManage.vue'), meta: { requireAuth: true } },
             { path: 'employeeManage', name: '员工信息管理', component: () => import('../views/adminView/EmployeeManage.vue'), meta: { requireAuth: true } },
             { path: 'orderManage', name: '报修处理', component: () => import('../views/adminView/OrderManage.vue'), meta: { requireAuth: true } },
-        //     { path: 'term', name: '学期信息管理', component: () => import('../views/baseIfo/Term.vue'), meta: { requireAuth: true } },
-        //     { path: 'paperInfo', name: '试卷信息', component: () => import('../views/paperManage/PaperInfo.vue'), meta: { requireAuth: true } },
-        //     { path: 'paperAna', name: '试卷分析', component: () => import('../views/paperManage/PaperAna.vue'), meta: { requireAuth: true } },
-        //     { path: 'scoreAdd', name: '成绩录入', component: () => import('../views/scoreManage/ScoreAdd.vue'), meta: { requireAuth: true } },
-        //     { path: 'scoreQuery', name: '成绩查询', component: () => import('../views/scoreManage/ScoreQuery.vue'), meta: { requireAuth: true } },
-        //     { path: 'course', name: '排课', component: () => import('../views/teach/Teach.vue'), meta: { requireAuth: true } },
-        //     { path: 'selectCourse', name: '选课', component: () => import('../views/selectCourse/Student.vue'), meta: { requireAuth: true } },
-        //     { path: 'searchCourse', name: '个人选课', component: () => import('../views/selectCourse/StudentTwo.vue'), meta: { requireAuth: true } },
+            { path: 'inventoryManage', name: '物料管理', component: () => import('../views/adminView/InventoryManage.vue'), meta: { requireAuth: true } },
+            { path: 'feedbackManage', name: '回访管理', component: () => import('../views/adminView/FeedbackManage.vue'), meta: { requireAuth: true } },
+            { path: 'maintenanceManage', name: '维护管理', component: () => import('../views/adminView/MaintenanceManage.vue'), meta: { requireAuth: true } },
+        
          ],
         meta: { requireAuth: true }
     },

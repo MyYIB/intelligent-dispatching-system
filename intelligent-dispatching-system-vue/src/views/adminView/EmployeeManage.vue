@@ -23,7 +23,7 @@ const UserForm = reactive({
   address: "",
   skillLevel: "",
   skills: [],
-  status: "available",
+  status: "off",
 });
 const UserFormRef = ref(null);
 const rules = {
@@ -407,11 +407,11 @@ onMounted(() => {
     <!-- 表格 -->
     <el-table :data="tableData" border stripe :header-cell-class-name="headerBg" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
-      <el-table-column prop="employeeId" label="ID" width="80" />
-      <el-table-column prop="name" label="员工姓名" width="100" />
+      <el-table-column prop="employeeId" label="ID" width="50" />
+      <el-table-column prop="name" label="员工姓名" width="50" />
       <el-table-column prop="email" label="邮箱" />
       <el-table-column prop="phone" label="电话" />
-      <el-table-column prop="address" label="家庭地址" />
+      <el-table-column prop="address" label="家庭地址" width="150"/>
       <el-table-column prop="skillLevel" label="等级" width="180">
         <template #default="{ row }">
           <div style="display: flex; align-items: center;">
@@ -455,7 +455,7 @@ onMounted(() => {
           </el-progress>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="120">
+      <el-table-column label="状态" width="100">
         <template #default="{ row }">
           <el-tag
             :type="getStatusType(row.status)"
@@ -465,7 +465,7 @@ onMounted(() => {
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200" align="center">
+      <el-table-column label="操作" width="150" align="center">
         <template #default="{ row }">
           <el-button type="success" @click="handleEdit(row)">
             编辑 <el-icon><Edit /></el-icon>

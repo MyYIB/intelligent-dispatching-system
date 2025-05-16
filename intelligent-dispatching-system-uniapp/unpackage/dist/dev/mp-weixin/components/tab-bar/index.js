@@ -86,7 +86,14 @@ const _sfc_main = {
     const closeOverlay = () => {
       showOverlay.value = false;
     };
-    const handleSuccess = () => {
+    const handleSuccess = (data) => {
+      if (data && (data.status === "available" || data.status === "off")) {
+        const pages = getCurrentPages();
+        const currentPage = pages[pages.length - 1];
+        if (currentPage && currentPage.onLoad) {
+          currentPage.onLoad(currentPage.options || {});
+        }
+      }
     };
     return (_ctx, _cache) => {
       return common_vendor.e({

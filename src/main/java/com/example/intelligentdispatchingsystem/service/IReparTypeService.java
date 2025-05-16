@@ -1,6 +1,6 @@
 package com.example.intelligentdispatchingsystem.service;
 
-import com.example.intelligentdispatchingsystem.entity.info.ReparType;
+import com.example.intelligentdispatchingsystem.entity.info.RepareType;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author lm
  * @since 2025-04-18
  */
-public interface IReparTypeService extends IService<ReparType> {
+public interface IReparTypeService extends IService<RepareType> {
 
 }

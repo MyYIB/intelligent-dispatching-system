@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,17 +14,25 @@ import lombok.Setter;
  * </p>
  *
  * @author lm
- * @since 2025-04-18
+ * @since 2025-05-12
  */
 @Getter
 @Setter
-@TableName("repar_type")
-public class ReparType implements Serializable {
+@TableName("equipment_maintenance")
+public class EquipmentMaintenance implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "repar_type_id", type = IdType.AUTO)
-    private Integer reparTypeId;
+    @TableId(value = "maintenance_id", type = IdType.AUTO)
+    private Integer maintenanceId;
 
-    private String reparTypeName;
+    private String equipmentName;
+
+    private LocalDateTime maintenanceDate;
+
+    private String details;
+
+    private Integer employeeId;
+
+    private String status;
 }
