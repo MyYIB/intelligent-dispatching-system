@@ -33,4 +33,5 @@ public class Inventory implements Serializable {
     private Integer quantity;
 
     private LocalDateTime lastUpdated;
+
 }

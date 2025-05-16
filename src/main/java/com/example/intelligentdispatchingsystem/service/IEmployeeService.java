@@ -1,5 +1,6 @@
 package com.example.intelligentdispatchingsystem.service;
 
+import com.example.intelligentdispatchingsystem.common.ServerResponse;
 import com.example.intelligentdispatchingsystem.entity.info.Skills;
 import com.example.intelligentdispatchingsystem.entity.role.Employee;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -19,4 +20,6 @@ public interface IEmployeeService extends IService<Employee> {
     String getEmployeeAddress(Integer employeeId);
     boolean addEmployeeSkills(Integer employeeId, List<Integer> skillIds);
     boolean removeEmployeeSkills(Integer employeeId);
+    boolean plusEmployeeLevelPoints(Integer employeeId, Double level);
+    boolean completeWork(Integer employeeId);
 }

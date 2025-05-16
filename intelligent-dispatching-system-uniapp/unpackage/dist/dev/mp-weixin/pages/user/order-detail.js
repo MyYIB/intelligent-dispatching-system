@@ -1,12 +1,29 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
 const api_orderAPI = require("../../api/orderAPI.js");
+if (!Array) {
+  const _easycom_uni_rate2 = common_vendor.resolveComponent("uni-rate");
+  const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
+  const _easycom_uni_popup2 = common_vendor.resolveComponent("uni-popup");
+  (_easycom_uni_rate2 + _easycom_uni_icons2 + _easycom_uni_popup2)();
+}
+const _easycom_uni_rate = () => "../../node-modules/@dcloudio/uni-ui/lib/uni-rate/uni-rate.js";
+const _easycom_uni_icons = () => "../../node-modules/@dcloudio/uni-ui/lib/uni-icons/uni-icons.js";
+const _easycom_uni_popup = () => "../../node-modules/@dcloudio/uni-ui/lib/uni-popup/uni-popup.js";
+if (!Math) {
+  (_easycom_uni_rate + _easycom_uni_icons + _easycom_uni_popup)();
+}
 const _sfc_main = {
   __name: "order-detail",
   setup(__props) {
     const orderDetail = common_vendor.ref({});
     const employeeDetail = common_vendor.ref({});
     const loading = common_vendor.ref(false);
+    const feedbackInfo = common_vendor.ref(null);
+    const ratePopup = common_vendor.ref(null);
+    const rateForm = common_vendor.ref({
+      satisfaction_score: 5
+    });
     const markers = common_vendor.computed(() => {
       if (!orderDetail.value.location_latitude || !orderDetail.value.location_longitude) {
         return [];
@@ -31,12 +48,15 @@ const _sfc_main = {
         const res = await api_orderAPI.getOrderDetail(orderId.value);
         if (res.status === 200) {
           orderDetail.value = res.data || {};
-          if (orderDetail.status !== "pending") {
+          if (orderDetail.value.status !== "pending") {
             const orderRes = await api_orderAPI.getOrderEmployeeDetail(orderDetail.value.orderId);
             if (orderRes.status === 200) {
               employeeDetail.value = orderRes.data || {};
-              common_vendor.index.__f__("log", "at pages/user/order-detail.vue:141", employeeDetail.value);
+              common_vendor.index.__f__("log", "at pages/user/order-detail.vue:221", employeeDetail.value);
             }
+          }
+          if (orderDetail.value.status === "completed") {
+            await fetchFeedbackInfo();
           }
         } else {
           common_vendor.index.showToast({
@@ -45,7 +65,7 @@ const _sfc_main = {
           });
         }
       } catch (error) {
-        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:152", "获取工单详情失败", error);
+        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:237", "获取工单详情失败", error);
         common_vendor.index.showToast({
           title: "网络异常，请稍后重试",
           icon: "none"
@@ -53,6 +73,87 @@ const _sfc_main = {
       } finally {
         loading.value = false;
       }
+    };
+    const fetchFeedbackInfo = async () => {
+      try {
+        const res = await api_orderAPI.getFeedbackByOrderId(orderId.value);
+        if (res.status === 200) {
+          feedbackInfo.value = res.data;
+        } else {
+          feedbackInfo.value = null;
+        }
+      } catch (error) {
+        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:257", "获取回访信息失败", error);
+        feedbackInfo.value = null;
+      }
+    };
+    const openRatePopup = () => {
+      rateForm.value = {
+        satisfaction_score: 5
+      };
+      ratePopup.value.open();
+    };
+    const closeRatePopup = () => {
+      ratePopup.value.close();
+    };
+    const submitRating = async () => {
+      if (rateForm.value.satisfaction_score < 1) {
+        common_vendor.index.showToast({
+          title: "请至少选择1星评分",
+          icon: "none"
+        });
+        return;
+      }
+      loading.value = true;
+      try {
+        const userInfoStr = common_vendor.index.getStorageSync("userInfo");
+        if (!userInfoStr) {
+          throw new Error("请先登录");
+        }
+        const userInfo = JSON.parse(userInfoStr);
+        const ratingData = {
+          feedback_id: feedbackInfo.value.feedbackId,
+          order_id: parseInt(orderId.value),
+          user_id: userInfo.userId,
+          satisfaction_score: rateForm.value.satisfaction_score,
+          rating_time: (/* @__PURE__ */ new Date()).toISOString()
+        };
+        const res = await api_orderAPI.submitUserRating(ratingData);
+        if (res.status === 200) {
+          common_vendor.index.showToast({
+            title: "评价已提交",
+            icon: "success"
+          });
+          closeRatePopup();
+          await fetchFeedbackInfo();
+        } else {
+          throw new Error(res.msg || "提交评价失败");
+        }
+      } catch (error) {
+        common_vendor.index.__f__("error", "at pages/user/order-detail.vue:322", "提交评价失败", error);
+        common_vendor.index.showToast({
+          title: error.message || "网络异常，请稍后重试",
+          icon: "none"
+        });
+      } finally {
+        loading.value = false;
+      }
+    };
+    const getFeedbackStateText = (state) => {
+      const stateMap = {
+        "uncompleted": "待回访",
+        "completed": "已回访",
+        "unrated": "待评价"
+      };
+      return stateMap[state] || "未知状态";
+    };
+    const getFeedbackStateClass = (state) => {
+      const classMap = {
+        "uncompleted": "state-pending",
+        "completed": "state-completed",
+        "unrated": "state-unrated"
+      };
+      return classMap[state] || "";
     };
     const cancelOrder = async () => {
       common_vendor.index.showModal({
@@ -76,7 +177,7 @@ const _sfc_main = {
                 });
               }
             } catch (error) {
-              common_vendor.index.__f__("error", "at pages/user/order-detail.vue:187", "取消工单失败", error);
+              common_vendor.index.__f__("error", "at pages/user/order-detail.vue:377", "取消工单失败", error);
               common_vendor.index.showToast({
                 title: "网络异常，请稍后重试",
                 icon: "none"
@@ -187,10 +288,57 @@ const _sfc_main = {
       }, employeeDetail.value.resolved_at ? {
         t: common_vendor.t(formatTime(orderDetail.value.resolved_at) || "未完成")
       } : {}) : {}, {
-        v: orderDetail.value.status === "pending" || orderDetail.value.status === "assigned" || orderDetail.value.status === "in_progress"
+        v: orderDetail.value.status === "completed"
+      }, orderDetail.value.status === "completed" ? common_vendor.e({
+        w: !feedbackInfo.value
+      }, !feedbackInfo.value ? {} : common_vendor.e({
+        x: common_vendor.t(getFeedbackStateText(feedbackInfo.value.feedbackState)),
+        y: common_vendor.n(getFeedbackStateClass(feedbackInfo.value.feedbackState)),
+        z: feedbackInfo.value.feedbackState === "completed"
+      }, feedbackInfo.value.feedbackState === "completed" ? {
+        A: common_vendor.p({
+          value: feedbackInfo.value.satisfactionScore || 0,
+          size: 18,
+          readonly: true
+        }),
+        B: common_vendor.t(feedbackInfo.value.satisfactionScore || 0)
+      } : {}, {
+        C: feedbackInfo.value.needTime
+      }, feedbackInfo.value.needTime ? {
+        D: common_vendor.t(formatTime(feedbackInfo.value.needTime))
+      } : {}, {
+        E: feedbackInfo.value.feedbackTime
+      }, feedbackInfo.value.feedbackTime ? {
+        F: common_vendor.t(formatTime(feedbackInfo.value.feedbackTime))
+      } : {})) : {}, {
+        G: orderDetail.value.status === "pending" || orderDetail.value.status === "assigned" || orderDetail.value.status === "in_progress"
       }, orderDetail.value.status === "pending" || orderDetail.value.status === "assigned" || orderDetail.value.status === "in_progress" ? {
-        w: common_vendor.o(cancelOrder)
-      } : {});
+        H: common_vendor.o(cancelOrder)
+      } : {}, {
+        I: orderDetail.value.status === "completed" && feedbackInfo.value && feedbackInfo.value.feedbackState === "unrated"
+      }, orderDetail.value.status === "completed" && feedbackInfo.value && feedbackInfo.value.feedbackState === "unrated" ? {
+        J: common_vendor.o(openRatePopup)
+      } : {}, {
+        K: common_vendor.o(closeRatePopup),
+        L: common_vendor.p({
+          type: "close",
+          size: "20",
+          color: "#999"
+        }),
+        M: common_vendor.o(($event) => rateForm.value.satisfaction_score = $event),
+        N: common_vendor.p({
+          size: 24,
+          modelValue: rateForm.value.satisfaction_score
+        }),
+        O: common_vendor.o(closeRatePopup),
+        P: common_vendor.o(submitRating),
+        Q: common_vendor.sr(ratePopup, "29badeee-1", {
+          "k": "ratePopup"
+        }),
+        R: common_vendor.p({
+          type: "center"
+        })
+      });
     };
   }
 };

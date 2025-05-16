@@ -45,7 +45,7 @@
       <el-menu-item v-if="isAdmin" index="inventoryManage">
         物料管理
       </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="1-2">
+      <el-menu-item v-if="isAdmin" index="maintenanceManage">
         设备维护
       </el-menu-item>
     </el-sub-menu>
@@ -56,10 +56,7 @@
       <el-menu-item v-if="isAdmin" index="/orderManage">
         报修处理
       </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="1-2">
-        投诉处理
-      </el-menu-item>
-      <el-menu-item v-if="isAdmin" index="1-2">
+      <el-menu-item v-if="isAdmin" index="feedbackManage">
         回访处理
       </el-menu-item>
     </el-sub-menu>

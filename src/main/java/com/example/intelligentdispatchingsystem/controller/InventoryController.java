@@ -182,8 +182,8 @@ public class InventoryController {
     /**
      * 根据工单ID获取已使用的备料
      */
-    @GetMapping("/getUse/{orderId}")
-    public ServerResponse<List<Map<String, Object>>> getInventoryUseByOrderId(@PathVariable Integer orderId) {
+    @GetMapping("/getUse")
+    public ServerResponse<List<Map<String, Object>>> getInventoryUseByOrderId(@RequestParam Integer orderId) {
         try {
             List<Map<String, Object>> useList = inventoryUseService.getInventoryUseByOrderId(orderId);
             return ServerResponse.createSuccess(useList);

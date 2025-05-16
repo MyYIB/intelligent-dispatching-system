@@ -14,6 +14,7 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,19 +273,17 @@ public class EmployeeController {
     }
 
     /**
-     * 获取员工信息
+     * 获取所有员工信息
      */
-    @GetMapping("/info")
-    public ServerResponse<Employee> getEmployeeInfo(@RequestParam Integer employeeId) {
-        if (employeeId == null) {
-            return ServerResponse.createError("员工ID不能为空");
+    @GetMapping("/list")
+    public ServerResponse<List<Employee>> getEmployeeInfo() {
+
+        List<Employee> employees = new ArrayList<>();
+        employees = employeeService.list();
+        if (employees.isEmpty()) {
+            return ServerResponse.createError("无可用员工");
         }
 
-        Employee employee = employeeService.getById(employeeId);
-        if (employee == null) {
-            return ServerResponse.createError("员工不存在");
-        }
-
-        return ServerResponse.createSuccess(employee);
+        return ServerResponse.createSuccess(employees);
     }
 }

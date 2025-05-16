@@ -100,13 +100,54 @@
           </view>
         </view>
       </view>
+
+      <!-- 回访信息 - 仅在已完成状态显示 -->
+      <view class="info-section" v-if="orderDetail.status === 'completed'">
+        <view class="info-header">
+          <text class="info-title">回访信息</text>
+        </view>
+        
+        <view v-if="!feedbackInfo" class="empty-data">
+          <text>暂未进行回访</text>
+        </view>
+        
+        <view v-else>
+          <view class="info-item">
+            <text class="item-label">回访状态</text>
+            <text class="item-value" :class="getFeedbackStateClass(feedbackInfo.feedbackState)">
+              {{ getFeedbackStateText(feedbackInfo.feedbackState) }}
+            </text>
+          </view>
+          
+          <view class="info-item" v-if="feedbackInfo.feedbackState === 'completed'">
+            <text class="item-label">满意度评分</text>
+            <view class="satisfaction-score">
+              <uni-rate :value="feedbackInfo.satisfactionScore || 0" :size="18" :readonly="true" />
+              <text class="score-text">{{ feedbackInfo.satisfactionScore || 0 }}分</text>
+            </view>
+          </view>
+          
+          <view class="info-item" v-if="feedbackInfo.needTime">
+            <text class="item-label">回访时间</text>
+            <text class="item-value">{{ formatTime(feedbackInfo.needTime) }}</text>
+          </view>
+          <view class="info-item" v-if="feedbackInfo.feedbackTime">
+            <text class="item-label">完成回访时间</text>
+            <text class="item-value">{{ formatTime(feedbackInfo.feedbackTime) }}</text>
+          </view>
+          <view class="info-item" v-if="feedbackInfo.feedbackContent">
+            <text class="item-label">回访备注</text>
+            <text class="item-value">{{ feedbackInfo.feedbackContent }}</text>
+          </view>
+        </view>
+      </view>
     </view>
     
     <!-- 底部操作区 -->
-    <view class="action-bar">
+    <view v-if="showActionButton" class="action-bar">
       <button 
         class="primary-btn" 
-        :class="{'process-btn': orderDetail.status === 'assigned', 'complete-btn': orderDetail.status === 'in_progress'}"
+        :class="{'process-btn': orderDetail.status === 'assigned', 'complete-btn': orderDetail.status === 'in_progress','feedback-btn': orderDetail.status === 'completed' && (!feedbackInfo || feedbackInfo.feedback_state !== 'completed')}"
         @click="handleOrderAction"
         :loading="loading"
       >
@@ -122,44 +163,129 @@
           <uni-icons type="close" size="20" color="#999" @click="closeInventoryPopup"></uni-icons>
         </view>
         
+        <!-- 添加搜索框 -->
+        <view class="search-box">
+          <view class="search-input-box">
+            <uni-icons type="search" size="18" color="#999"></uni-icons>
+            <input 
+              type="text" 
+              v-model="searchKeyword" 
+              placeholder="搜索物料名称" 
+              class="search-input"
+              confirm-type="search"
+            />
+            <uni-icons v-if="searchKeyword" type="clear" size="18" color="#999" @click="searchKeyword = ''"></uni-icons>
+          </view>
+        </view>
+        
+        <!-- 添加分类标签 -->
+        <view class="category-tabs" v-if="inventoryCategories.length > 1">
+          <scroll-view scroll-x class="category-scroll">
+            <view 
+              v-for="(category, idx) in inventoryCategories" 
+              :key="idx"
+              class="category-item"
+              :class="{'category-active': currentCategory === category}"
+              @click="currentCategory = category"
+            >
+              <text>{{category}}</text>
+            </view>
+          </scroll-view>
+        </view>
+        
         <view class="popup-content">
-          <view v-if="inventoryList.length === 0" class="empty-data">
-            <text>暂无可用备料</text>
+          <view v-if="filteredInventoryList.length === 0" class="empty-data">
+            <text>{{ searchKeyword ? '未找到相关物料' : '暂无可用备料' }}</text>
           </view>
           
           <scroll-view v-else scroll-y class="inventory-scroll">
-            <view v-for="(item, index) in inventoryList" :key="item.itemId" class="inventory-select-item">
+            <!-- 已选物料快速查看区 -->
+            <view v-if="selectedItems.length > 0" class="selected-items-preview">
+              <text class="selected-title">已选物料 ({{selectedItems.length}})</text>
+              <scroll-view scroll-x class="selected-scroll">
+                <view 
+                  v-for="item in selectedItems" 
+                  :key="item.itemId" 
+                  class="selected-tag"
+                >
+                  <text>{{item.itemName}} x{{item.useQuantity}}</text>
+                </view>
+              </scroll-view>
+            </view>
+            
+            <!-- 物料列表 -->
+            <view 
+              v-for="(item, index) in filteredInventoryList" 
+              :key="item.itemId" 
+              class="inventory-select-item"
+              :class="{'item-selected': item.useQuantity > 0}"
+            >
               <view class="inventory-info">
                 <text class="inventory-name">{{ item.itemName }}</text>
                 <text class="inventory-stock">库存: {{ item.quantity }}</text>
               </view>
               
               <view class="quantity-control">
-                <button class="quantity-btn" @click="decreaseQuantity(index)">-</button>
+                <button class="quantity-btn" @click="decreaseQuantity(getOriginalIndex(item))">-</button>
                 <input 
                   type="number" 
                   class="quantity-input" 
                   v-model="item.useQuantity" 
-                  @input="validateQuantity(index)"
+                  @input="validateQuantity(getOriginalIndex(item))"
                 />
-                <button class="quantity-btn" @click="increaseQuantity(index)">+</button>
+                <button class="quantity-btn" @click="increaseQuantity(getOriginalIndex(item))">+</button>
               </view>
             </view>
           </scroll-view>
         </view>
         
         <view class="popup-footer">
+          <view class="selected-summary" v-if="selectedItems.length > 0">
+            <text>已选: {{selectedItems.length}}种</text>
+          </view>
           <button class="cancel-btn" @click="closeInventoryPopup">取消</button>
           <button class="confirm-btn" @click="confirmUseInventory">确认使用</button>
         </view>
       </view>
     </uni-popup>
+    <!-- 回访弹窗 -->
+  <uni-popup ref="feedbackPopup" type="center">
+    <view class="feedback-popup">
+      <view class="popup-header">
+        <text class="popup-title">工单回访</text>
+        <uni-icons type="close" size="20" color="#999" @click="closeFeedbackPopup"></uni-icons>
+      </view>
+      
+      <view class="popup-content">
+        <view class="feedback-form">
+          
+          
+          <view class="form-item">
+            <text class="form-label">回访备注</text>
+            <textarea 
+              class="feedback-textarea" 
+              v-model="feedbackForm.feedback_content" 
+              placeholder="请输入回访备注内容"
+              maxlength="200"
+            ></textarea>
+            <text class="textarea-counter">{{feedbackForm.feedback_content.length}}/200</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="popup-footer">
+        <button class="cancel-btn" @click="closeFeedbackPopup">取消</button>
+        <button class="confirm-btn" @click="submitFeedback">提交回访</button>
+      </view>
+    </view>
+  </uni-popup>
+    
   </view>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { getOrderDetail, updateOrderStatus,getOrderInventory ,fetchInventoryList, submitInventoryUse,getOrderUserInfo} from '@/api/orderAPI.js';
+import { getOrderDetail, updateOrderStatus,getOrderInventory ,fetchInventoryList, submitInventoryUse,getOrderUserInfo,getFeedbackByOrderId, submitFeedbackRecord} from '@/api/orderAPI.js';
 import { onLoad } from '@dcloudio/uni-app';
 
 // 工单详情数据
@@ -171,7 +297,12 @@ const userInfo = ref({});
 const inventoryPopup = ref(null);
 const inventoryList = ref([]);
 const inventoryUseList = ref([]);
-
+// 回访相关
+const feedbackPopup = ref(null);
+const feedbackInfo = ref(null);
+const feedbackForm = ref({
+  feedback_content: ''
+});
 // 地图标记
 const markers = computed(() => {
   if (!orderDetail.value.locationLatitude || !orderDetail.value.locationLongitude) {
@@ -213,6 +344,10 @@ const fetchOrderDetail = async () => {
           userInfo.value = orderRes.data || {};
         }
       }
+      // 如果工单状态是已完成，获取回访信息
+      if (orderDetail.value.status === 'completed') {
+        await fetchFeedbackInfo();
+      }
     } else {
       uni.showToast({
         title: res.message || '获取工单详情失败',
@@ -230,17 +365,46 @@ const fetchOrderDetail = async () => {
   }
 };
 
+// 获取回访信息
+const fetchFeedbackInfo = async () => {
+  try {
+    const res = await getFeedbackByOrderId(orderId.value);
+    if (res.status === 200) {
+      feedbackInfo.value = res.data;
+    } else {
+      feedbackInfo.value = null;
+    }
+  } catch (error) {
+    console.error('获取回访信息失败', error);
+    feedbackInfo.value = null;
+  }
+};
+
 // 获取备料列表
 const getInventoryList = async () => {
   try {
     const res = await fetchInventoryList();
     
-    if (res.status === 200 ) {
+    if (res.status === 200) {
+      // 处理分页数据结构，确保我们获取到records数组
+      const inventoryData = res.data.records || res.data;
+      
       // 添加使用数量字段
-      inventoryList.value = res.data.map(item => ({
-        ...item,
-        useQuantity: 0
-      }));
+      if (Array.isArray(inventoryData)) {
+        inventoryList.value = inventoryData.map(item => ({
+          ...item,
+          useQuantity: 0,
+          // 为物料添加分类属性，方便后续分类展示
+          category: getCategoryByName(item.itemName)
+        }));
+      } else {
+        console.error('物料数据格式不正确:', res.data);
+        uni.showToast({
+          title: '物料数据格式不正确',
+          icon: 'none'
+        });
+        inventoryList.value = [];
+      }
     } else {
       uni.showToast({
         title: '获取备料列表失败',
@@ -257,6 +421,29 @@ const getInventoryList = async () => {
 };
 
 
+// 根据物料名称简单分类的辅助函数
+const getCategoryByName = (name) => {
+  if (!name) return '其他';
+  
+  // 根据物料名称进行分类
+  const categoryRules = [
+    { keywords: ['光纤', '跳纤', '尾纤', '保护套管'], category: '光纤类' },
+    { keywords: ['网线', '电缆', '同轴'], category: '线缆类' },
+    { keywords: ['路由器', '交换机', '光猫'], category: '网络设备' },
+    { keywords: ['接头', '插座', '插头'], category: '接口配件' },
+    { keywords: ['工具', '钳子', '螺丝刀'], category: '工具类' }
+  ];
+  
+  for (const rule of categoryRules) {
+    if (rule.keywords.some(keyword => name.includes(keyword))) {
+      return rule.category;
+    }
+  }
+  
+  return '其他';
+};
+
+
 
 // 处理工单操作
 const handleOrderAction = () => {
@@ -266,7 +453,86 @@ const handleOrderAction = () => {
   } else if (orderDetail.value.status === 'in_progress') {
     // 处理中状态，完成工单
     completeOrder();
+  }else if (orderDetail.value.status === 'completed') {
+    // 已完成状态，进行回访
+    openFeedbackPopup();
   }
+};
+
+// 打开回访弹窗
+const openFeedbackPopup = () => {
+  // 重置表单
+  feedbackForm.value = {
+    feedback_content: ''
+  };
+  
+  // 如果已有回访信息，填充表单
+  if (feedbackInfo.value) {
+    feedbackForm.value.feedback_content = feedbackInfo.value.feedback_content || '';
+  }
+  
+  feedbackPopup.value.open();
+};
+
+// 提交回访
+const submitFeedback = async () => {
+  
+  
+  loading.value = true;
+  
+  try {
+    const employeeInfoStr = uni.getStorageSync('employeeInfo');
+    if (!employeeInfoStr) {
+      throw new Error('请先登录');
+    }
+    
+    const employeeInfo = JSON.parse(employeeInfoStr);
+    
+    const feedbackData = {
+      order_id: parseInt(orderId.value),
+      employee_id: employeeInfo.employeeId,
+      feedback_state: 'unrated',
+      feedback_content: feedbackForm.value.feedback_content,
+    };
+    
+    // 如果已有回访记录，则更新
+    if (feedbackInfo.value && feedbackInfo.value.feedback_id) {
+      feedbackData.feedback_id = feedbackInfo.value.feedback_id;
+    }
+    
+    const res = await submitFeedbackRecord(feedbackData);
+    
+    if (res.status === 200) {
+      uni.showToast({
+        title: '回访已完成',
+        icon: 'success'
+      });
+      
+      // 关闭弹窗
+      closeFeedbackPopup();
+      
+      // 刷新回访信息
+      await fetchFeedbackInfo();
+      
+      // 通知列表页刷新
+      uni.$emit('feedback-updated');
+    } else {
+      throw new Error(res.message || '提交回访失败');
+    }
+  } catch (error) {
+    console.error('提交回访失败', error);
+    uni.showToast({
+      title: error.message || '网络异常，请稍后重试',
+      icon: 'none'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 关闭回访弹窗
+const closeFeedbackPopup = () => {
+  feedbackPopup.value.close();
 };
 
 // 打开备料选择弹窗
@@ -414,9 +680,44 @@ const completeOrder = async () => {
 const getActionButtonText = () => {
   const statusMap = {
     'assigned': '开始处理',
-    'in_progress': '完成工单'
+    'in_progress': '完成工单',
+    'completed': feedbackInfo.value && feedbackInfo.value.feedback_state === 'completed' ? '已完成回访' : '进行回访'
   };
   return statusMap[orderDetail.value.status] || '';
+};
+
+// 是否显示操作按钮
+const showActionButton = computed(() => {
+  if (orderDetail.value.status === 'assigned' || orderDetail.value.status === 'in_progress') {
+    return true;
+  }
+  
+  // 已完成状态，且未完成回访或回访状态不是已完成
+  if (orderDetail.value.status === 'completed') {
+    return !feedbackInfo.value || feedbackInfo.value.feedbackState === 'uncompleted' ;
+  }
+  
+  return false;
+});
+
+// 获取回访状态文本
+const getFeedbackStateText = (state) => {
+  const stateMap = {
+    'uncompleted': '待回访',
+    'completed': '已回访',
+    'unrated': '待评价'
+  };
+  return stateMap[state] || '未知状态';
+};
+
+// 获取回访状态样式类
+const getFeedbackStateClass = (state) => {
+  const classMap = {
+    'uncompleted': 'state-pending',
+    'unrated': 'state-in-progress',
+    'completed': 'state-completed'
+  };
+  return classMap[state] || '';
 };
 
 // 格式化时间
@@ -502,6 +803,55 @@ onLoad((options) => {
     }, 1500);
   }
 });
+// 物料搜索和分类相关
+const searchKeyword = ref('');
+const currentCategory = ref('全部');
+
+// 物料分类列表
+const inventoryCategories = computed(() => {
+  // 提取所有物料分类
+  const categories = ['全部'];
+  const categorySet = new Set();
+  
+  inventoryList.value.forEach(item => {
+    if (item.category && !categorySet.has(item.category)) {
+      categorySet.add(item.category);
+      categories.push(item.category);
+    }
+  });
+  
+  return categories;
+});
+
+// 过滤后的物料列表
+const filteredInventoryList = computed(() => {
+  let result = [...inventoryList.value];
+  
+  // 按关键词搜索
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(item => 
+      item.itemName.toLowerCase().includes(keyword)
+    );
+  }
+  
+  // 按分类筛选
+  if (currentCategory.value !== '全部') {
+    result = result.filter(item => item.category === currentCategory.value);
+  }
+  
+  return result;
+});
+
+// 已选物料列表
+const selectedItems = computed(() => {
+  return inventoryList.value.filter(item => item.useQuantity > 0);
+});
+
+// 获取原始索引，用于操作原始数组
+const getOriginalIndex = (item) => {
+  return inventoryList.value.findIndex(i => i.itemId === item.itemId);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -812,5 +1162,195 @@ onLoad((options) => {
 .confirm-btn {
   background-color: #1890FF;
   color: #fff;
+}
+/* 物料弹窗优化样式 */
+.inventory-popup {
+  width: 650rpx;
+  max-height: 900rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-box {
+  padding: 20rpx 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.search-input-box {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 36rpx;
+  padding: 10rpx 20rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 60rpx;
+  margin: 0 10rpx;
+  font-size: 26rpx;
+}
+
+.category-tabs {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+}
+
+.category-scroll {
+  white-space: nowrap;
+  padding: 0 30rpx;
+}
+
+.category-item {
+  display: inline-block;
+  padding: 10rpx 24rpx;
+  margin-right: 16rpx;
+  background-color: #f5f5f5;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.category-active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.popup-content {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 30rpx;
+}
+
+.inventory-scroll {
+  max-height: 500rpx;
+}
+
+.selected-items-preview {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #eee;
+  margin-bottom: 10rpx;
+}
+
+.selected-title {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+  display: block;
+}
+
+.selected-scroll {
+  white-space: nowrap;
+}
+
+.selected-tag {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border-radius: 30rpx;
+  margin-right: 16rpx;
+  font-size: 24rpx;
+}
+
+.item-selected {
+  background-color: rgba(24, 144, 255, 0.05);
+  border-radius: 12rpx;
+  padding: 30rpx 20rpx;
+  margin: 0 -20rpx;
+}
+
+.popup-footer {
+  padding: 20rpx 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1rpx solid #eee;
+}
+
+.selected-summary {
+  font-size: 24rpx;
+  color: #666;
+  margin-right: 20rpx;
+}
+
+/* 回访状态样式 */
+.state-pending {
+  color: #fa8c16;
+}
+
+.state-in-progress {
+  color: #1890ff;
+}
+
+.state-completed {
+  color: #52c41a;
+}
+
+/* 满意度评分样式 */
+.satisfaction-score {
+  display: flex;
+  align-items: center;
+}
+
+.score-text {
+  margin-left: 10rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 回访按钮样式 */
+.feedback-btn {
+  background-color: #722ed1;
+  color: #fff;
+  
+  &:active {
+    background-color: #5b21b6;
+  }
+}
+
+/* 回访弹窗样式 */
+.feedback-popup {
+  width: 650rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.feedback-form {
+  padding: 20rpx 0;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.feedback-textarea {
+  width: 100%;
+  height: 200rpx;
+  background-color: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.textarea-counter {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+  display: block;
+  margin-top: 10rpx;
 }
 </style>

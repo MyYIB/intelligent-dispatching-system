@@ -3,6 +3,7 @@ package com.example.intelligentdispatchingsystem.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.intelligentdispatchingsystem.entity.info.DispatchRecords;
+import com.example.intelligentdispatchingsystem.entity.info.TaskAssignments;
 import com.example.intelligentdispatchingsystem.entity.info.WorkOrders;
 import com.example.intelligentdispatchingsystem.entity.role.Employee;
 import com.example.intelligentdispatchingsystem.entity.role.User;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,9 @@ public class WorkOrdersServiceImpl extends ServiceImpl<WorkOrdersMapper, WorkOrd
 
     @Resource
     private IEmployeeSkillsService employeeSkillsService;
+
+    @Resource
+    private ITaskAssignmentsService taskAssignmentsService;
 
     @Override
     public List<WorkOrders> getOrdersByUserId(Integer userId) {
@@ -111,10 +116,27 @@ public class WorkOrdersServiceImpl extends ServiceImpl<WorkOrdersMapper, WorkOrd
         for (Employee employee : availableEmployees) {
             double score = calculateEmployeeScore(employee, workOrder);
             employeeScores.put(employee.getEmployeeId(), score);
-            System.out.println(score);
+
         }
-        
-        // 3. 选择评分最高的技术员
+
+        // 3. 将匹配分数保存
+        if(!availableEmployees.isEmpty()){
+            try{
+                List<TaskAssignments> taskAssignments = new ArrayList<>();
+                for(Employee employee : availableEmployees) {
+                    TaskAssignments taskAssignment = new TaskAssignments();
+                    taskAssignment.setEmployeeId(employee.getEmployeeId());
+                    taskAssignment.setOrderId(workOrder.getOrderId());
+                    taskAssignment.setMatchingScore(employeeScores.get(employee.getEmployeeId()));
+                    taskAssignments.add(taskAssignment);
+                }
+                taskAssignmentsService.saveBatch(taskAssignments);
+            }catch (Exception e){
+                log.error("存储匹配分数失败", e);
+                throw new RuntimeException("存储匹配分数失败: " + e.getMessage());
+            }
+        }
+        // 4. 选择评分最高的技术员
         return employeeScores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)

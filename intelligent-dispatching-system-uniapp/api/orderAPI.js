@@ -56,3 +56,33 @@ export function submitInventoryUse(data) {
 export function getOrderUserInfo(orderId) {
   return request(`/order/getUser?orderId=${orderId}`, 'GET');
 }
+
+// 获取工单回访信息
+export function getFeedbackByOrderId(orderId) {
+  return request(`/order/getFeedback?orderId=${orderId}`, 'GET');
+}
+
+// 提交工单回访
+export function submitFeedbackRecord(data) {
+  return request(`/order/submitFeedback`, 'POST', data);
+}
+
+// 用户回访评分
+export function submitUserRating(data) {
+  return request(`/order/submitFeedbackScore`, 'POST', data);
+}
+
+// 获取维护工单列表
+export function getMaintenanceList(employeeId) {
+  return request(`/order/maintenance/employee?employeeId=${employeeId}`, 'GET');
+}
+
+// 更新维护状态
+export function updateMaintenanceStatus(data) {
+  return request(`/order/maintenance/updateStatus`, 'POST', data);
+}
+
+// 创建维护工单
+export function createMaintenanceOrder(data) {
+  return request(`/order/maintenance/create`, 'POST', data); 
+}
